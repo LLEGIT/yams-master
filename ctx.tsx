@@ -1,5 +1,6 @@
 import { useContext, createContext, type PropsWithChildren } from 'react';
 import { useStorageState } from './useStorageState';
+import { socket } from './app/contexts/socket.context';
 
 const AuthContext = createContext<{
   signIn: () => void;
@@ -13,7 +14,6 @@ const AuthContext = createContext<{
   isLoading: false,
 });
 
-// This hook can be used to access the user info.
 export function useSession() {
   const value = useContext(AuthContext);
   if (process.env.NODE_ENV !== 'production') {
@@ -32,11 +32,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
     <AuthContext.Provider
       value={{
         signIn: () => {
-          // Perform sign-in logic here
           setSession('xxx');
+          if (socket && !socket.connected) {
+            socket.connect();
+          }
         },
         signOut: () => {
           setSession(null);
+          if (socket && socket.connected) {
+            socket.disconnect();
+          }
         },
         session,
         isLoading,

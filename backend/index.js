@@ -1,6 +1,12 @@
 const app = require('express')();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
 // ---------------------------------------------------
 // -------- CONSTANTS AND GLOBAL VARIABLES -----------
@@ -16,6 +22,9 @@ const io = require('socket.io')(http);
 
 io.on('connection', socket => {
   console.log(`[${socket.id}] socket connected`);
+  
+  socket.emit('time-msg', { time: new Date().toISOString() });
+  
   socket.on('disconnect', reason => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
   });
@@ -30,9 +39,16 @@ setInterval(() => {
 // -----------------------------------
 
 app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: __dirname });
-  });  
+  res.sendFile('index.html', { root: __dirname });
+});
 
-http.listen(3000, function(){
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+http.listen(3000, '0.0.0.0', function(){
   console.log('listening on *:3000');
 });
