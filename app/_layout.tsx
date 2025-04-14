@@ -1,19 +1,8 @@
-import { Redirect, Slot, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { SessionProvider, useSession } from '../ctx';
 import { socket, SocketContext } from './contexts/socket.context';
-import { Text } from 'react-native';
 
 export default function Root() {
-  const { session, isLoading } = useSession();
-
-  if (isLoading) {
-    return (<Text>Loading...</Text>);
-  }
-
-  // if (!session) {
-  //   return <Redirect href="/sign-in" />;
-  // }
-
   return (
     <SocketContext.Provider value={socket}>
       <SessionProvider>
