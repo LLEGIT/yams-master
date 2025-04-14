@@ -21,7 +21,7 @@ const io = require('socket.io')(http, {
 // ---------------------------------------
 
 io.on('connection', socket => {
-  console.log(`[${socket.id}] socket connected`);
+  console.log(`[${socket.id}] socket connected at ${new Date().toLocaleString()}`);
   
   socket.emit('time-msg', { time: new Date().toISOString() });
   

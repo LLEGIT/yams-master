@@ -1,7 +1,8 @@
-import { Text, View } from 'react-native';
-import { useSession } from '../../ctx';
+import { useSession } from '../ctx';
 import { useContext, useEffect, useState } from 'react';
-import { SocketContext } from '../contexts/socket.context';
+import { SocketContext } from './contexts/socket.context';
+import { Link, Tabs } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function Index() {
   const { signOut } = useSession();
@@ -11,7 +12,7 @@ export default function Index() {
 
   useEffect(() => {
     if (socket) {
-      
+
       socket.on('connect', () => {
         console.log('Connected to WebSocket server');
         setIsConnected(true);
@@ -37,16 +38,28 @@ export default function Index() {
   }, [socket]);
 
   return (
+
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ marginBottom: 20, fontSize: 18 }}>
-        Current Time: {currentTime || 'Waiting for time...'}
-      </Text>
-      <Text
-        onPress={() => {
-          signOut();
-        }}>
-        Sign Out
-      </Text>
+      <Text>Welcome to Yam master</Text>
+      <Link href="/online" style={styles.button}>
+        Play online
+      </Link>
+      <Link href="/online" style={styles.button}>
+        Play against a bot
+      </Link>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    fontSize: 20,
+    textDecorationLine: 'underline',
+  },
+});
