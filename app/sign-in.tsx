@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { NativeSyntheticEvent, StyleSheet, Text, TextInput, TextInputKeyPressEventData } from 'react-native';
 
 import { useSession } from '../ctx';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +20,12 @@ export default function SignIn() {
         router.replace('/');
     }
 
+    const handleKeyPress = (event: any) => {
+        if (event.code === 'Enter') {
+            handlePress();
+        }
+    }
+
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.view}>
@@ -32,6 +38,7 @@ export default function SignIn() {
                 <TextInput
                     style={styles.input}
                     onChangeText={onChangePassword}
+                    onKeyPress={handleKeyPress}
                     value={password}
                     placeholder='Password'
                 />

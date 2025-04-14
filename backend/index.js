@@ -1,54 +1,122 @@
+// websocket-server/index.js
+
 const app = require('express')();
 const http = require('http').Server(app);
-const io = require('socket.io')(http, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
+const io = require('socket.io')(http);
+var uniqid = require('uniqid');
+const GameService = require('./services/game.service');
 
 // ---------------------------------------------------
 // -------- CONSTANTS AND GLOBAL VARIABLES -----------
 // ---------------------------------------------------
+let games = [];
+let queue = [];
 
 // ---------------------------------
 // -------- GAME METHODS -----------
 // ---------------------------------
+
+const newPlayerInQueue = (socket) => {
+
+  queue.push(socket);
+
+  // Queue management
+  if (queue.length >= 2) {
+    const player1Socket = queue.shift();
+    const player2Socket = queue.shift();
+    createGame(player1Socket, player2Socket);
+  }
+  else {
+    socket.emit('queue.added', GameService.send.forPlayer.viewQueueState());
+  }
+};
+
+const createGame = (player1Socket, player2Socket) => {
+
+  const newGame = GameService.init.gameState();
+  newGame['idGame'] = uniqid();
+  newGame['player1Socket'] = player1Socket;
+  newGame['player2Socket'] = player2Socket;
+
+  games.push(newGame);
+
+  const gameIndex = GameService.utils.findGameIndexById(games, newGame.idGame);
+
+  games[gameIndex].player1Socket.emit('game.start', GameService.send.forPlayer.viewGameState('player:1', games[gameIndex]));
+  games[gameIndex].player2Socket.emit('game.start', GameService.send.forPlayer.viewGameState('player:2', games[gameIndex]));
+};
+
+const abortGame = (socket) => {
+  const gameIndex = games.findIndex(game =>
+    game.player1Socket.id === socket.id || game.player2Socket.id === socket.id
+  );
+
+  if (gameIndex !== -1) {
+    const game = games[gameIndex];
+    const opponentSocket = (game.player1Socket.id === socket.id)
+      ? game.player2Socket
+      : game.player1Socket;
+
+    // Notify opponent if still connected
+    if (opponentSocket && opponentSocket.connected) {
+      opponentSocket.emit('game.aborted', {
+        message: "Opponent left the game.",
+        inGame: false,
+        inQueue: false
+      });
+    }
+
+    // Remove game from games array
+    games.splice(gameIndex, 1);
+    console.log(`[${socket.id}] aborted game [${game.idGame}]`);
+  }
+};
+
+const leaveQueue = (socket) => {
+  const index = queue.indexOf(socket);
+  if (index !== -1) {
+    queue.splice(index, 1); // Remove socket from queue
+    socket.emit('queue.removed', GameService.send.forPlayer.viewQueueState());
+    console.log(`[${socket.id}] left the queue`);
+  } else {
+    console.log(`[${socket.id}] tried to leave queue but was not in it`);
+  }
+}
 
 // ---------------------------------------
 // -------- SOCKETS MANAGEMENT -----------
 // ---------------------------------------
 
 io.on('connection', socket => {
-  console.log(`[${socket.id}] socket connected at ${new Date().toLocaleString()}`);
-  
-  socket.emit('time-msg', { time: new Date().toISOString() });
-  
+  console.log(`[${socket.id}] socket connected`);
+
+  socket.on('queue.join', () => {
+    console.log(`[${socket.id}] new player in queue `)
+    newPlayerInQueue(socket);
+  });
+
+  socket.on('queue.leave', () => {
+    console.log(`[${socket.id}] requested to leave queue`);
+    leaveQueue(socket);
+  });
+
+  socket.on('game.leave', () => {
+    abortGame(socket);
+  })
+
   socket.on('disconnect', reason => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
-  });
+    leaveQueue(socket);
+    abortGame(socket); // 💥 Clean up the game if the player was in one
+  });  
 });
-
-setInterval(() => {
-  io.sockets.emit('time-msg', { time: new Date().toISOString() });
-}, 1000);
 
 // -----------------------------------
 // -------- SERVER METHODS -----------
 // -----------------------------------
 
-app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: __dirname });
-});
+app.get('/', (req, res) => res.sendFile('index.html'));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
-http.listen(3000, '0.0.0.0', function(){
+http.listen(3000, function(){
   console.log('listening on *:3000');
 });

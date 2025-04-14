@@ -1,11 +1,40 @@
-import { Link } from "expo-router";
-import { Text, View } from "react-native";
+// app/screens/online-game.screen.js
 
-export default function Online() {
+import React, { useContext } from "react";
+import { StyleSheet, View, Button, Text } from "react-native";
+import { SocketContext } from './contexts/socket.context';
+import { Link } from "expo-router";
+import OnlineGameController from "./controller/online-game-controller";
+
+export default function OnlineScreen() {
+
+    const socket = useContext(SocketContext);
+
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Link style={{ position: 'absolute', top: 70, left: 20 }} href='/'>Retour</Link>
-            <Text>Je joue en ligne</Text>
+        <View style={styles.container}>
+            {!socket && (
+                <>
+                    <Text>
+                        No connection with server...
+                    </Text>
+                    <Text>
+                        Restart the app and wait for the server to be back again.
+                    </Text>
+                </>
+            )}
+
+            {socket && (
+                <OnlineGameController />
+            )}
         </View>
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+    }
+});

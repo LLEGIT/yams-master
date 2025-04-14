@@ -1,11 +1,49 @@
-import { Link } from "expo-router";
-import { Text, View } from "react-native";
+// app/screens/vs-bot-game.screen.js
 
-export default function Bot() {
+import React, { useContext } from "react";
+import { StyleSheet, View, Button, Text } from "react-native";
+import { SocketContext } from './contexts/socket.context';
+import { Link } from "expo-router";
+
+export default function BotScreen() {
+
+    const socket = useContext(SocketContext);
+
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Link style={{ position: 'absolute', top: 70, left: 20 }} href='/'>Retour</Link>
-            <Text>Je joue contre un bot</Text>
+        <View style={styles.container}>
+            {!socket && (
+                <>
+                    <Text>
+                        No connection with server...
+                    </Text>
+                    <Text>
+                        Restart the app and wait for the server to be back again.
+                    </Text>
+                </>
+            )}
+
+            {socket && (
+                <>
+                    <Text>
+                        VsBot Game Interface
+                    </Text>
+                    <Text>
+                        My socket id is: {socket.socket.id}
+                    </Text>
+                    <Link href='/'>
+                        Retour au menu
+                    </Link>
+                </>
+            )}
         </View>
-    )
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+    }
+});

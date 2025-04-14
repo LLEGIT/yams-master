@@ -6,31 +6,25 @@ import { StyleSheet, Text, View } from 'react-native';
 
 export default function Index() {
   const { session, isLoading, signOut } = useSession(); // ✅ un seul appel
-  const socket = useContext(SocketContext);
+  const socketContext = useContext(SocketContext);
   const [currentTime, setCurrentTime] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const { connected, setConnected, socket } = socketContext;
 
   useEffect(() => {
     if (socket) {
       socket.on('connect', () => {
         console.log('Connected to WebSocket server');
-        setIsConnected(true);
+        setConnected(true);
       });
 
       socket.on('disconnect', () => {
         console.log('Disconnected from WebSocket server');
-        setIsConnected(false);
+        setConnected(false);
       });
 
       socket.on('time-msg', (data: { time: string }) => {
         setCurrentTime(new Date(data.time).toLocaleTimeString());
       });
-
-      return () => {
-        socket.off('connect');
-        socket.off('disconnect');
-        socket.off('time-msg');
-      };
     } else {
       console.log('Socket context is null');
     }
@@ -47,7 +41,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text>Bienvenue sur le jeu yam master</Text>
-      <Text>Statut WebSocket : {isConnected ? 'Connecté' : 'Déconnecté'}</Text>
+      <Text>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
       <Text>Heure actuelle : {currentTime || 'Pas encore reçue'}</Text>
 
       <Link href="/online" style={styles.button}>

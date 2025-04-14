@@ -1,5 +1,11 @@
-import React, { createContext, useContext, ReactNode } from "react";
-import { Platform, Text } from 'react-native';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { Platform } from "react-native";
 import io, { Socket } from "socket.io-client";
 
 export const socketEndpoint: string = Platform.OS === 'web'
@@ -16,36 +22,53 @@ export const socket: Socket = io(socketEndpoint, {
   autoConnect: true,
 });
 
-export let hasConnection: boolean = false;
+interface SocketContextProps {
+  socket: Socket;
+  connected: boolean;
+  setConnected: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-socket.on("connect", () => {
-  hasConnection = true;
-});
-
-socket.on("connect_error", (error) => {
-  console.error("WebSocket connection error:", error.message);
-});
-
-socket.on("disconnect", (reason) => {
-  hasConnection = false;
-  console.log("Disconnected from server. Reason:", reason);
-});
-
-socket.on("error", (error) => {
-  console.error("WebSocket error:", error);
-});
-
-socket.connect();
-
-export const SocketContext = createContext<Socket | null>(null);
+export const SocketContext = createContext<SocketContextProps | null>(null);
 
 interface SocketProviderProps {
   children: ReactNode;
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("Connected to WebSocket server.");
+      setConnected(true);
+    };
+
+    const handleDisconnect = (reason: string) => {
+      console.log("Disconnected from server. Reason:", reason);
+      setConnected(false);
+    };
+
+    const handleError = (error: any) => {
+      console.error("WebSocket error:", error.message || error);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect_error", handleError);
+    socket.on("error", handleError);
+
+    socket.connect();
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleError);
+      socket.off("error", handleError);
+    };
+  }, []);
+
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={{ socket, connected, setConnected }}>
       {children}
     </SocketContext.Provider>
   );
