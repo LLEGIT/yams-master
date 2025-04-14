@@ -11,7 +11,6 @@ export default function SignIn() {
     const [password, onChangePassword] = useState<string>('');
 
     const handlePress = () => {
-        // TODO => Implement auth strategy
         if (username !== 'admin' || password !== 'admin') {
             console.log('incorrect credentials')
             return;
