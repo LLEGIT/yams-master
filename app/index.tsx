@@ -2,7 +2,7 @@ import { useSession } from '../ctx';
 import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from './contexts/socket.context';
 import { Link, Redirect } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import PillButton from '../components/PillButton';
 
 export default function Index() {
@@ -36,9 +36,8 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text>Bienvenue sur le jeu yam master</Text>
-      <Text>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
-
+      <Image source={require('./../assets/images/logo.png')} style={{ width: 400, height: 400 }} />
+      <Text style={{ color: 'white', padding: 10, fontSize: 20, width: 400, textAlign: 'center', backgroundColor: connected ? 'green' : 'red' }}>Status: {connected ? 'online' : 'offline'}</Text>
       <View style={styles.buttonContainer}>
         <Link href="/online" asChild>
           <PillButton title="Jouer en ligne" />

@@ -10,11 +10,19 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Copy .env.dist in .env with correct values
+
+3. Start the app
 
    ```bash
     npx expo start
    ```
+
+### Start backend
+
+1. npm install
+2. Copy .env.dist in .env with correct value
+3. node index.js
 
 In the output, you'll find options to open the app in a
 
