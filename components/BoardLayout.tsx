@@ -18,7 +18,7 @@ const OpponentInfos = () => {
 const OpponentTimer = () => {
   return (
     <View style={styles.timerContainer}>
-      <Text>Timer: </Text>
+      <OpponentTimer />
     </View>
   );
 };
@@ -34,7 +34,7 @@ const OpponentScore = () => {
 const OpponentDeck = () => {
   return (
     <View style={styles.deckContainer}>
-      <DiceBar />
+      <DiceBar opponent={true} />
     </View>
   );
 };
@@ -50,7 +50,7 @@ const Choices = () => {
 const PlayerDeck = () => {
   return (
     <View style={styles.deckContainer}>
-      <DiceBar />
+      <DiceBar opponent={false} />
     </View>
   );
 };
@@ -66,7 +66,7 @@ const PlayerInfos = () => {
 const PlayerTimer = () => {
   return (
     <View style={styles.timerContainer}>
-      <Text>Timer: </Text>
+      <PlayerTimer />
     </View>
   );
 };
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   gameFoundHeader: {
-    
+
   },
   gameFoundText: {
 
@@ -163,18 +163,18 @@ const styles = StyleSheet.create({
 
   },
   playerHeaderText: {
- 
+
   },
   infoBar: {
   },
   infoBarLeft: {
-  
+
   },
   infoBarRight: {
-    
+
   },
   deckSection: {
-   
+
   },
   mainGameArea: {
 
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
 
   },
   deckContainer: {
- 
+
   },
   choicesContainer: {
 
