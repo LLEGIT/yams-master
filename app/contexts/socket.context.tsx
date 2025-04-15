@@ -8,9 +8,7 @@ import React, {
 import { Platform } from "react-native";
 import io, { Socket } from "socket.io-client";
 
-export const socketEndpoint: string = Platform.OS === 'web'
-  ? "http://localhost:3000"
-  : "ws://92.184.108.73:3000";
+export const socketEndpoint: string = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 console.log('Attempting to connect to WebSocket server at:', socketEndpoint);
 
