@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SocketContext } from '../contexts/socket.context';
 import { Link, useRouter } from 'expo-router';
+import YamsGrid from '@/components/YamsGrid';
 
 export default function OnlineGameController() {
     const router = useRouter(); // ✅ useRouter instead of useNavigation
@@ -78,6 +79,7 @@ export default function OnlineGameController() {
                     <Text style={styles.paragraph}>Player - {socket.id} -</Text>
                     <Text style={styles.paragraph}>- vs -</Text>
                     <Text style={styles.paragraph}>Player - {idOpponent} -</Text>
+                    <YamsGrid/>
                 </>
             )}
 

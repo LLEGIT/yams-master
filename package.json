@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@mdi/js": "^7.4.47",
+    "@mdi/react": "^1.6.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "expo": "~52.0.43",
@@ -44,6 +46,7 @@
     "react-native-webview": "13.12.5",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "styled-components": "^6.1.17",
     "uniqid": "^5.4.0"
   },
   "devDependencies": {

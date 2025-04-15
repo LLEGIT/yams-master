@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from './contexts/socket.context';
 import { Link, Redirect } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import PillButton from '../components/PillButton';
 
 export default function Index() {
   const { session, isLoading, signOut } = useSession(); // ✅ un seul appel
@@ -40,17 +41,21 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text>Bienvenue sur le jeu yam master</Text>
-      <Text>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
-      <Text>Heure actuelle : {currentTime || 'Pas encore reçue'}</Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>Bienvenue sur le jeu yam master</Text>
+        <Text style={styles.status}>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
+        <Text style={styles.time}>Heure actuelle : {currentTime || 'Pas encore reçue'}</Text>
 
-      <Link href="/online" style={styles.button}>
-        Jouer en ligne
-      </Link>
-      <Link href="/bot" style={styles.button}>
-        Jouer contre un bot
-      </Link>
-      <Text onPress={() => signOut()}>Se déconnecter</Text>
+        <View style={styles.buttonContainer}>
+          <Link href="/online" asChild>
+            <PillButton title="Jouer en ligne" />
+          </Link>
+          <Link href="/bot" asChild>
+            <PillButton title="Jouer contre un bot" />
+          </Link>
+          <PillButton title="Se déconnecter" onPress={() => signOut()} />
+        </View>
+      </View>
     </View>
   );
 }
@@ -59,12 +64,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#25292e',
+  },
+  content: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 20,
   },
-  button: {
-    fontSize: 20,
-    textDecorationLine: 'underline',
-    marginVertical: 10,
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 30,
+    gap: 40,
+  },
+  title: {
+    color: '#fafaf9',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  status: {
+    color: '#fafaf9',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  time: {
+    color: '#fafaf9',
+    fontSize: 16,
+    marginBottom: 30,
   },
 });
