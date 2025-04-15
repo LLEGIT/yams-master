@@ -1,17 +1,18 @@
 // app/controller/online-game.controller.js
 
 import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
-
+import { useNavigation } from "@react-navigation/native";
 
 export default function OnlineGameController() {
-
+    const navigation = useNavigation();
     const socket = useContext(SocketContext);
 
     const [inQueue, setInQueue] = useState(false);
     const [inGame, setInGame] = useState(false);
     const [idOpponent, setIdOpponent] = useState(null);
+    const [gameCancelled, setGameCancelled] = useState(false);
 
     useEffect(() => {
         console.log('[emit][queue.join]:', socket.id);
@@ -32,7 +33,32 @@ export default function OnlineGameController() {
             setIdOpponent(data['idOpponent']);
         });
 
+        socket.on('game.cancelled', (data) => {
+            setGameCancelled(true);
+            setInGame(false);
+
+            setTimeout(() => {
+                setInQueue(false);
+                setIdOpponent(null);
+                setGameCancelled(false);
+                return navigation.navigate('HomeScreen');
+            }, 2000);
+        });
+
+        return () => {
+            socket.off('queue.added');
+            socket.off('game.start');
+            socket.off('game.cancelled');
+        };
     }, []);
+
+    const handleCancel = () => {
+        socket.emit('game.cancel');
+        setInQueue(false);
+        setInGame(false);
+        setIdOpponent(null);
+        navigation.navigate('HomeScreen');
+    };
 
     return (
         <View style={styles.container}>
@@ -51,7 +77,7 @@ export default function OnlineGameController() {
                     </Text>
                 </>
             )}
-
+            {gameCancelled && <Text>Your game has been cancelled. Redirection to homepage...</Text>}
             {inGame && (
                 <>
                     <Text style={styles.paragraph}>
@@ -66,6 +92,7 @@ export default function OnlineGameController() {
                     <Text style={styles.paragraph}>
                         Player - {idOpponent} -
                     </Text>
+                    <Button title="Cancel" onPress={handleCancel} />
                 </>
             )}
         </View>

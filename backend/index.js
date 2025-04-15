@@ -61,7 +61,58 @@ io.on('connection', socket => {
   socket.on('disconnect', reason => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
   });
+
+  socket.on('game.cancel', () => {
+    const game = findGameBySocket(socket);
+
+    if (game) {
+      const otherPlayerSocket = (game.player1Socket.id === socket.id)
+        ? game.player2Socket
+        : game.player1Socket;
+
+      // Notify the other player
+      otherPlayerSocket.emit('game.cancelled', {
+        message: 'Your opponent has left the game.'
+      });
+
+      // Remove the game from the list
+      games = games.filter(g => g.idGame !== game.idGame);
+
+      console.log(`[${socket.id}] cancelled game ${game.idGame}`);
+    }
+  });
+
 });
+
+io.on('disconnect', reason => {
+  console.log(`[${socket.id}] socket disconnected - ${reason}`);
+
+  // Handle cancel logic on disconnect
+  const game = findGameBySocket(socket);
+
+  if (game) {
+    const otherPlayerSocket = (game.player1Socket.id === socket.id)
+      ? game.player2Socket
+      : game.player1Socket;
+
+    otherPlayerSocket.emit('game.cancelled', {
+      message: 'Your opponent has disconnected.'
+    });
+
+    games = games.filter(g => g.idGame !== game.idGame);
+
+    console.log(`[${socket.id}] disconnected from game ${game.idGame}`);
+  }
+
+  // Remove from queue if they were still waiting
+  queue = queue.filter(s => s.id !== socket.id);
+});
+
+const findGameBySocket = (socket) => {
+  return games.find(game =>
+    game.player1Socket.id === socket.id || game.player2Socket.id === socket.id
+  );
+};
 
 // -----------------------------------
 // -------- SERVER METHODS -----------
