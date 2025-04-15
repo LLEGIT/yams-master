@@ -18,7 +18,7 @@ export default function OnlineGameController() {
             socket.emit('queue.leave');
         }
         if (inGame) {
-            socket.emit('game.leave')
+            socket.emit('game.leave');
         }
 
         router.replace('/'); // ✅ redirect on queue.leave
@@ -44,17 +44,18 @@ export default function OnlineGameController() {
         });
 
         socket.on('game.aborted', () => {
-            alert('Your opponent left !')
-            setInQueue(true);
+            alert('Your opponent left !');
+            setInQueue(false);
             setInGame(false);
-            socket.emit('queue.join');
             setIdOpponent(null);
+            return router.replace('/');
         })
 
         return () => {
             socket.off('queue.leave');
             socket.off('queue.added');
             socket.off('game.start');
+            socket.off('game.aborted');
         };
     }, []);
 
@@ -89,7 +90,6 @@ export default function OnlineGameController() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',

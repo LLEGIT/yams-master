@@ -101,6 +101,7 @@ io.on('connection', socket => {
   });
 
   socket.on('game.leave', () => {
+    console.log(`[${socket.id}] requested to leave game`);
     abortGame(socket);
   })
 
