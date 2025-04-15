@@ -22,7 +22,7 @@ const PillButton: React.FC<PillButtonProps> = ({ title, onPress }) => {
 
 const StyledWrapper = styled.div`
   .button {
-    --stone-50: #f8fafc;
+    --stone-50:rgb(255, 255, 255);
     --stone-800: #1e293b;
     --yellow-400: #3b82f6;
 
@@ -60,7 +60,7 @@ const StyledWrapper = styled.div`
       max-height: 100px;
       aspect-ratio: 1;
       margin: auto;
-      background: #94a3b8;
+      background:rgb(255, 228, 118);
       clip-path: polygon(
         100% 50%,
         91.48% 56.57%,
@@ -104,11 +104,11 @@ const StyledWrapper = styled.div`
         91.48% 43.43%
       );
       animation: star-rotate 4s linear infinite;
-      opacity: 0.1;
+      opacity: 1;
     }
 
     &:hover::before {
-      opacity: 1;
+      opacity: 0.1;
     }
 
     & > div {

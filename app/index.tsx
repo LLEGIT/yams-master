@@ -74,19 +74,16 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   title: {
-    color: '#fafaf9',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
   },
   status: {
-    color: '#fafaf9',
     fontSize: 16,
     marginBottom: 10,
   },
   time: {
-    color: '#fafaf9',
     fontSize: 16,
     marginBottom: 30,
   },

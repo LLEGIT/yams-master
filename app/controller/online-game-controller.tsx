@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView } from 'react-native';
 import { SocketContext } from '../contexts/socket.context';
 import { Link, useRouter } from 'expo-router';
-import YamsGrid from '@/components/YamsGrid';
+import BoardLayout from '@/components/BoardLayout';
 
 export default function OnlineGameController() {
     const router = useRouter(); // ✅ useRouter instead of useNavigation
@@ -61,43 +61,68 @@ export default function OnlineGameController() {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
             {!inQueue && !inGame && (
-                <Text style={styles.paragraph}>
-                    Waiting for server datas...
-                </Text>
+                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+                    <View style={styles.container}>
+                        <Text style={styles.paragraph}>
+                            Waiting for server datas...
+                        </Text>
+                        <Link style={styles.cancelButton} onPress={handleCancel} href='#'>Cancel</Link>
+                    </View>
+                </ScrollView>
             )}
 
             {inQueue && (
-                <Text style={styles.paragraph}>
-                    Waiting for another player...
-                </Text>
+                <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+                    <View style={styles.container}>
+                        <Text style={styles.paragraph}>
+                            Waiting for another player...
+                        </Text>
+                        <Link style={styles.cancelButton} onPress={handleCancel} href='#'>Cancel</Link>
+                    </View>
+                </ScrollView>
             )}
 
             {inGame && (
-                <>
-                    <Text style={styles.paragraph}>Game found !</Text>
-                    <Text style={styles.paragraph}>Player - {socket.id} -</Text>
-                    <Text style={styles.paragraph}>- vs -</Text>
-                    <Text style={styles.paragraph}>Player - {idOpponent} -</Text>
-                    <YamsGrid/>
-                </>
+                <View style={styles.gameContainer}>
+                    <BoardLayout gameViewState={undefined}/>
+                    <Link style={styles.cancelButton} onPress={handleCancel} href='#'>Cancel</Link>
+                </View>
             )}
-
-            <Link onPress={handleCancel} href='#'>Cancel</Link>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+    },
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        padding: 20,
+    },
+    gameContainer: {
+        flex: 1,
         width: '100%',
         height: '100%',
     },
     paragraph: {
         fontSize: 16,
+        textAlign: 'center',
+        marginVertical: 20,
+    },
+    cancelButton: {
+        textAlign: 'center',
+        padding: 10,
+        marginVertical: 20,
+        color: 'red',
     }
 });
