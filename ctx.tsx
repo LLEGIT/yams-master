@@ -1,6 +1,7 @@
 import { useContext, createContext, type PropsWithChildren } from 'react';
 import { useStorageState } from './useStorageState';
 import { socket } from './app/contexts/socket.context';
+import SignIn from './app/sign-in';
 
 const AuthContext = createContext<{
   signIn: () => void;

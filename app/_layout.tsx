@@ -7,14 +7,14 @@ export default function Root() {
   const [connected, setConnected] = useState<boolean>(false);
 
   return (
-    <SocketContext.Provider value={{ socket, connected, setConnected }}>
-      <SessionProvider>
+    <SessionProvider>
+      <SocketContext.Provider value={{ socket, connected, setConnected }}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" options={{ title: 'Home' }} />
           <Stack.Screen name="online" options={{ title: 'Online' }} />
           <Stack.Screen name="bot" options={{ title: 'Bot' }} />
         </Stack>
-      </SessionProvider>
-    </SocketContext.Provider>
+      </SocketContext.Provider>
+    </SessionProvider>
   );
 }

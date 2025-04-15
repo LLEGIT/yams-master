@@ -8,7 +8,6 @@ import PillButton from '../components/PillButton';
 export default function Index() {
   const { session, isLoading, signOut } = useSession(); // ✅ un seul appel
   const socketContext = useContext(SocketContext);
-  const [currentTime, setCurrentTime] = useState<string>('');
   const { connected, setConnected, socket } = socketContext;
 
   useEffect(() => {
@@ -21,10 +20,6 @@ export default function Index() {
       socket.on('disconnect', () => {
         console.log('Disconnected from WebSocket server');
         setConnected(false);
-      });
-
-      socket.on('time-msg', (data: { time: string }) => {
-        setCurrentTime(new Date(data.time).toLocaleTimeString());
       });
     } else {
       console.log('Socket context is null');
@@ -41,20 +36,17 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Bienvenue sur le jeu yam master</Text>
-        <Text style={styles.status}>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
-        <Text style={styles.time}>Heure actuelle : {currentTime || 'Pas encore reçue'}</Text>
+      <Text>Bienvenue sur le jeu yam master</Text>
+      <Text>Statut WebSocket : {connected ? 'Connecté' : 'Déconnecté'}</Text>
 
-        <View style={styles.buttonContainer}>
-          <Link href="/online" asChild>
-            <PillButton title="Jouer en ligne" />
-          </Link>
-          <Link href="/bot" asChild>
-            <PillButton title="Jouer contre un bot" />
-          </Link>
-          <PillButton title="Se déconnecter" onPress={() => signOut()} />
-        </View>
+      <View style={styles.buttonContainer}>
+        <Link href="/online" asChild>
+          <PillButton title="Jouer en ligne" />
+        </Link>
+        <Link href="/bot" asChild>
+          <PillButton title="Jouer contre un bot" />
+        </Link>
+        <PillButton title="Se déconnecter" onPress={() => signOut()} />
       </View>
     </View>
   );

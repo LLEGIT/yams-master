@@ -1,25 +1,25 @@
 import { Link, router } from 'expo-router';
 import { StyleSheet, Text, TextInput } from 'react-native';
-
-import { useSession } from '../ctx';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-export default function SignIn() {
-    const { signIn } = useSession();
+export default function Register() {
     const [username, onChangeUsername] = useState<string>('');
     const [password, onChangePassword] = useState<string>('');
-    const [invalidCredentials, setInvalidCredentials] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<boolean>(false);
 
     const handlePress = async () => {
-        setInvalidCredentials(false);
+        setError(null);
+        setSuccess(false);
 
-        if (username === '' || password === '') {
+        if (!username || !password) {
+            setError("Username and password are required.");
             return;
         }
 
         try {
-            const response = await fetch(process.env.EXPO_PUBLIC_API_URL + '/login', {
+            const response = await fetch(process.env.EXPO_PUBLIC_API_URL + '/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -27,39 +27,26 @@ export default function SignIn() {
                 body: JSON.stringify({ username, password })
             });
 
-
-            if (!response.ok) {
-                setInvalidCredentials(true);
-                console.log(response);
-                return;
-            }
-
             const data = await response.json();
 
-            if (data.username !== username) {
-                setInvalidCredentials(true);
-                return;
+            if (response.ok) {
+                setSuccess(true);
+                setTimeout(() => router.replace('/'), 1500); // redirect to login or home
+            } else {
+                setError(data?.message || "Registration failed");
             }
 
-            signIn();
-            router.replace('/');
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    const handleKeyPress = (event: any) => {
-        setInvalidCredentials(false);
-
-        if (event.code === 'Enter') {
-            handlePress();
+        } catch (err) {
+            console.error(err);
+            setError("Something went wrong.");
         }
     }
 
     return (
         <SafeAreaProvider>
             <SafeAreaView style={styles.view}>
-                {invalidCredentials && <Text style={{ color: 'red' }}>Invalid credentials</Text>}
+                {error && <Text style={{ color: 'red' }}>{error}</Text>}
+                {success && <Text style={{ color: 'green' }}>Registration successful!</Text>}
                 <TextInput
                     style={styles.input}
                     onChangeText={onChangeUsername}
@@ -69,16 +56,16 @@ export default function SignIn() {
                 <TextInput
                     style={styles.input}
                     onChangeText={onChangePassword}
-                    onKeyPress={handleKeyPress}
                     value={password}
                     placeholder='Password'
+                    secureTextEntry
                 />
                 <Text
                     style={styles.submit}
                     onPress={handlePress}>
-                    Sign In
+                    Register
                 </Text>
-                <Link style={styles.submit} href='/register'>Register</Link>
+                <Link href='/'>Already have an account? Sign In</Link>
             </SafeAreaView>
         </SafeAreaProvider>
     );
@@ -89,18 +76,21 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
+        paddingHorizontal: 20
     },
     input: {
         height: 40,
-        margin: 12,
+        marginVertical: 10,
         borderWidth: 1,
         padding: 10,
     },
     submit: {
-        width: 70,
+        width: 100,
         padding: 5,
         alignSelf: 'center',
         textAlign: 'center',
         fontSize: 15,
+        backgroundColor: 'green',
+        color: 'white'
     }
 });

@@ -1,10 +1,29 @@
 // websocket-server/index.js
+const cors = require('cors');
 
 const app = require('express')();
+app.use(cors());
 const http = require('http').Server(app);
+
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+// const User = require('./models/user.model');
+
 const io = require('socket.io')(http);
 var uniqid = require('uniqid');
 const GameService = require('./services/game.service');
+// const mongoose = require("mongoose");
+// require("dotenv").config();
+const { readUsers, writeUsers } = require('./utils');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// const db = mongoose.connect(
+//   process.env.MONGODB_URI,
+// );
+
+
 
 // ---------------------------------------------------
 // -------- CONSTANTS AND GLOBAL VARIABLES -----------
@@ -86,9 +105,8 @@ const leaveQueue = (socket) => {
 // ---------------------------------------
 // -------- SOCKETS MANAGEMENT -----------
 // ---------------------------------------
-
 io.on('connection', socket => {
-  console.log(`[${socket.id}] socket connected`);
+  console.log(`[${socket.id}] socket connected at ${new Date().toLocaleString()}`);
 
   socket.on('queue.join', () => {
     console.log(`[${socket.id}] new player in queue `)
@@ -109,7 +127,7 @@ io.on('connection', socket => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
     leaveQueue(socket);
     abortGame(socket); // 💥 Clean up the game if the player was in one
-  });  
+  });
 });
 
 // -----------------------------------
@@ -118,6 +136,46 @@ io.on('connection', socket => {
 
 app.get('/', (req, res) => res.sendFile('index.html'));
 
-http.listen(3000, function(){
+// Register Route
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  const users = readUsers();
+  const existingUser = users.find(u => u.username === username);
+
+  if (existingUser) {
+    return res.status(400).json({ message: "Username already taken." });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = { username, password: hashedPassword };
+
+  users.push(newUser);
+  writeUsers(users);
+
+  res.status(201).json({ message: "User registered successfully!" });
+});
+
+// Login Route
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const users = readUsers();
+  const user = users.find(u => u.username === username);
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid username or password" });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    return res.status(400).json({ message: "Invalid username or password" });
+  }
+
+  res.status(200).json({ message: "Login successful", username: user.username });
+});
+
+http.listen(3000, function () {
   console.log('listening on *:3000');
 });
