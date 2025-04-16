@@ -10,6 +10,7 @@ export default function OnlineGameController() {
     const navigation = useNavigation();
     const socket = useContext(SocketContext);
 
+    const [gameState, setGameState] = useState(null);
     const [inQueue, setInQueue] = useState(false);
     const [inGame, setInGame] = useState(false);
     const [idOpponent, setIdOpponent] = useState(null);
@@ -32,9 +33,11 @@ export default function OnlineGameController() {
             setInQueue(data['inQueue']);
             setInGame(data['inGame']);
             setIdOpponent(data['idOpponent']);
+            setGameState(data);
         });
 
         socket.on('game.cancelled', (data) => {
+            setGameState(null);
             setGameCancelled(true);
             setInGame(false);
 
@@ -54,10 +57,11 @@ export default function OnlineGameController() {
     }, []);
 
     const handleCancel = () => {
-        socket.emit('game.cancel');
+        socket.emit('queue.leave');
         setInQueue(false);
         setInGame(false);
         setIdOpponent(null);
+        setGameState(null);
         navigation.navigate('HomeScreen');
     };
 
@@ -76,10 +80,13 @@ export default function OnlineGameController() {
                     <Text style={styles.paragraph}>
                         Waiting for another player...
                     </Text>
+                    <Text onPress={handleCancel}>
+                        Cancel
+                    </Text>
                 </>
             )}
             {gameCancelled && <Text>Your game has been cancelled. Redirection to homepage...</Text>}
-            {inGame && <Board />}
+            {inGame && <Board gameState={gameState} idPlayer={socket.id} idOpponent={idOpponent} />}
         </View>
     );
 }
