@@ -15,7 +15,6 @@ const PlayerDeck = () => {
     const [rollsMaximum, setRollsMaximum] = useState(3);
 
     useEffect(() => {
-
         socket.on("game.deck.view-state", (data) => {
             setDisplayPlayerDeck(data['displayPlayerDeck']);
             if (data['displayPlayerDeck']) {
