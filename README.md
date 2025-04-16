@@ -1,58 +1,35 @@
-# Welcome to your Expo app 👋
+# Socket IO Example
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p>
+  <!-- iOS -->
+  <a href='https://itunes.apple.com/app/apple-store/id982107779'>
+    <img alt='Supports Expo iOS' longdesc='Supports Expo iOS' src='https://img.shields.io/badge/iOS-4630EB.svg?style=flat-square&logo=APPLE&labelColor=999999&logoColor=fff' />
+  </a>
+  <!-- Android -->
+  <a href='https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=blankexample'>
+    <img alt='Supports Expo Android' longdesc='Supports Expo Android' src='https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff' />
+  </a>
+  <!-- Web -->
+  <a href='https://docs.expo.dev/workflow/web/'>
+    <img alt='Supports Expo Web' longdesc='Supports Expo Web' src='https://img.shields.io/badge/web-4630EB.svg?style=flat-square&logo=GOOGLE-CHROME&labelColor=4285F4&logoColor=fff' />
+  </a>
+</p>
 
-## Get started
+This example shows how to connect and interact with socket-io backends.
 
-1. Install dependencies
+## 🚀 How to use
 
-   ```bash
-   npm install
-   ```
+### Running the app
 
-2. Copy .env.dist in .env with correct values
+- Run `yarn` or `npm install`
+- Open `App.js` and change the `socketEndpoint` at the top of the file to point to your endpoint.
+- Open `app` with `yarn start` or `npm run start` to try it out.
 
-3. Start the app
+### Running the server
 
-   ```bash
-    npx expo start
-   ```
+- `cd` into the `backend` directory and run `yarn` or `npm install`, then run `yarn start` or `npm run start`
+- Install [ngrok](https://ngrok.com/download) and run `ngrok http 3000` and copy the https url that looks something like this `https://f7333e87.ngrok.io`.
 
-### Start backend
+## 📝 Notes
 
-1. npm install
-2. Copy .env.dist in .env with correct value
-3. node index.js
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+React Native provides a socket-io compatible WebSocket implementation, some people get tripped up on the https requirement so this example helps to clarify how you can get it running.
