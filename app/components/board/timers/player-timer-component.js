@@ -1,3 +1,7 @@
+import { useContext, useEffect, useState } from "react";
+import { SocketContext } from "../../../contexts/socket.context";
+import { Text, View } from "react-native";
+
 const PlayerTimer = () => {
     const socket = useContext(SocketContext);
     const [playerTimer, setPlayerTimer] = useState(0);
@@ -9,8 +13,10 @@ const PlayerTimer = () => {
     }, []);
 
     return (
-        <View style={styles.playerTimerContainer}>
+        <View>
             <Text>Timer: {playerTimer}</Text>
         </View>
     );
 };
+
+export default PlayerTimer;

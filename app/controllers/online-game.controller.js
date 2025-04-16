@@ -1,9 +1,10 @@
 // app/controller/online-game.controller.js
 
 import React, { useEffect, useState, useContext } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
 import { useNavigation } from "@react-navigation/native";
+import Board from "../components/board/board.component";
 
 export default function OnlineGameController() {
     const navigation = useNavigation();
@@ -78,23 +79,7 @@ export default function OnlineGameController() {
                 </>
             )}
             {gameCancelled && <Text>Your game has been cancelled. Redirection to homepage...</Text>}
-            {inGame && (
-                <>
-                    <Text style={styles.paragraph}>
-                        Game found !
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        Player - {socket.id} -
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        - vs -
-                    </Text>
-                    <Text style={styles.paragraph}>
-                        Player - {idOpponent} -
-                    </Text>
-                    <Button title="Cancel" onPress={handleCancel} />
-                </>
-            )}
+            {inGame && <Board />}
         </View>
     );
 }

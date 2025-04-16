@@ -2,6 +2,10 @@
 
 import React from "react";
 import { View, Text, StyleSheet } from 'react-native';
+import PlayerDeck from "./decks/player-deck.component";
+import PlayerTimer from "./timers/player-timer-component";
+import OpponentDeck from "./decks/opponent-deck.component";
+import OpponentTimer from "./timers/opponent-timer-component";
 
 const OpponentInfos = () => {
     return (
@@ -11,27 +15,10 @@ const OpponentInfos = () => {
     );
 };
 
-const OpponentTimer = () => {
-    return (
-        <View style={styles.opponentTimerContainer}>
-            <OpponentTimer />
-        </View>
-    );
-};
-
 const OpponentScore = () => {
     return (
         <View style={styles.opponentScoreContainer}>
             <Text>Score: </Text>
-        </View>
-    );
-};
-
-const OpponentDeck = () => {
-
-    return (
-        <View style={styles.deckOpponentContainer}>
-            <OpponentDeck />
         </View>
     );
 };
@@ -54,27 +41,10 @@ const Choices = () => {
     );
 };
 
-const PlayerDeck = () => {
-    return (
-        <View style={styles.deckPlayerContainer}>
-            <PlayerDeck />
-        </View>
-    );
-};
-
 const PlayerInfos = () => {
     return (
         <View style={styles.playerInfosContainer}>
             <Text>Player Infos</Text>
-        </View>
-    );
-};
-
-const PlayerTimer = () => {
-
-    return (
-        <View style={styles.playerTimerContainer}>
-            <PlayerTimer />
         </View>
     );
 };
@@ -90,7 +60,7 @@ const PlayerScore = () => {
 
 
 
-const Board = ({ gameViewState }) => {
+const Board = () => {
     return (
         <View style={styles.container}>
             <View style={[styles.row, { height: '5%' }]}>
