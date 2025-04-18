@@ -20,13 +20,11 @@ const Choices = () => {
             setCanMakeChoice(data['canMakeChoice']);
             setIdSelectedChoice(data['idSelectedChoice']);
             setAvailableChoices(data['availableChoices']);
-            console.log(data)
         });
 
     }, []);
 
     const handleSelectChoice = (choiceId) => {
-
         if (canMakeChoice) {
             setIdSelectedChoice(choiceId);
             socket.emit("game.choices.selected", { choiceId });

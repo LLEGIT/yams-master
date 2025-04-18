@@ -50,6 +50,44 @@ const ALL_COMBINATIONS = [
     { value: 'Défi', id: 'defi' }
 ];
 
+const GRID_INIT = [
+    [
+        { viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false },
+        { viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false },
+        { viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false },
+        { viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false },
+        { viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false },
+    ],
+    [
+        { viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false },
+        { viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false },
+        { viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false },
+        { viewContent: 'Full', id: 'full', owner: null, canBeChecked: false },
+        { viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false },
+    ],
+    [
+        { viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false },
+        { viewContent: 'Full', id: 'full', owner: null, canBeChecked: false },
+        { viewContent: 'Yam', id: 'yam', owner: null, canBeChecked: false },
+        { viewContent: 'Défi', id: 'defi', owner: null, canBeChecked: false },
+        { viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false },
+    ],
+    [
+        { viewContent: '6', id: 'brelan6', owner: null, canBeChecked: false },
+        { viewContent: 'Sec', id: 'sec', owner: null, canBeChecked: false },
+        { viewContent: 'Suite', id: 'suite', owner: null, canBeChecked: false },
+        { viewContent: '≤8', id: 'moinshuit', owner: null, canBeChecked: false },
+        { viewContent: '1', id: 'brelan1', owner: null, canBeChecked: false },
+    ],
+    [
+        { viewContent: '3', id: 'brelan3', owner: null, canBeChecked: false },
+        { viewContent: '2', id: 'brelan2', owner: null, canBeChecked: false },
+        { viewContent: 'Carré', id: 'carre', owner: null, canBeChecked: false },
+        { viewContent: '5', id: 'brelan5', owner: null, canBeChecked: false },
+        { viewContent: '4', id: 'brelan4', owner: null, canBeChecked: false },
+    ]
+];
+
 const GameService = {
 
     init: {
@@ -58,15 +96,17 @@ const GameService = {
             game['gameState']['timer'] = TURN_DURATION;
             game['gameState']['deck'] = { ...DECK_INIT };
             game['gameState']['choices'] = { ...CHOICES_INIT };
+            game['gameState']['grid'] = [...GRID_INIT];
             return game;
         },
-
         deck: () => {
             return { ...DECK_INIT };
         },
-
         choices: () => {
             return { ...CHOICES_INIT };
+        },
+        grid: () => {
+            return { ...GRID_INIT };
         }
     },
 
@@ -118,7 +158,16 @@ const GameService = {
                     availableChoices: gameState.choices.availableChoices
                 }
                 return choicesViewState;
-            }
+            },
+            gridViewState: (playerKey, gameState) => {
+
+                return {
+                    displayGrid: true,
+                    canSelectCells: (playerKey === gameState.currentTurn) && (gameState.choices.availableChoices.length > 0),
+                    grid: gameState.grid
+                };
+
+            },
         }
     },
 
@@ -130,60 +179,53 @@ const GameService = {
 
     choices: {
         findCombinations: (dices, isDefi, isSec) => {
-
-            const allCombinations = ALL_COMBINATIONS;
             const availableCombinations = [];
+            const allCombinations = ALL_COMBINATIONS;
 
-            // Compter les occurrences de chaque valeur de dé (1 à 6)
-            const counts = Array(7).fill(0); // index 0 inutilisé
+            const counts = Array(7).fill(0); // Tableau pour compter le nombre de dés de chaque valeur (de 1 à 6)
+            let hasPair = false; // Pour vérifier si une paire est présente
+            let threeOfAKindValue = null; // Stocker la valeur du brelan
+            let hasThreeOfAKind = false; // Pour vérifier si un brelan est présent
+            let hasFourOfAKind = false; // Pour vérifier si un carré est présent
+            let hasFiveOfAKind = false; // Pour vérifier si un Yam est présent
+            let hasStraight = false; // Pour vérifier si une suite est présente
+            let sum = 0; // Somme des valeurs des dés
 
-            let sum = 0;
+            // Compter le nombre de dés de chaque valeur et calculer la somme
+            for (let i = 0; i < dices.length; i++) {
+                const diceValue = parseInt(dices[i].value);
+                counts[diceValue]++;
+                sum += diceValue;
+            }
 
-            dices.forEach(dice => {
-                const value = parseInt(dice.value);
-                if (!isNaN(value)) {
-                    counts[value]++;
-                    sum += value;
-                }
-            });
-
-            let hasPair = false;
-            let hasThreeOfAKind = false;
-            let threeOfAKindValue = null;
-            let hasFourOfAKind = false;
-            let hasFiveOfAKind = false;
-            let hasStraight = false;
-            let isLessThanEqual8 = sum <= 8;
-
-            // Détection des combinaisons basées sur les fréquences
+            // Vérifier les combinaisons possibles
             for (let i = 1; i <= 6; i++) {
                 if (counts[i] === 2) {
                     hasPair = true;
-                }
-                if (counts[i] === 3) {
-                    hasThreeOfAKind = true;
+                } else if (counts[i] === 3) {
                     threeOfAKindValue = i;
-                }
-                if (counts[i] === 4) {
+                    hasThreeOfAKind = true;
+                } else if (counts[i] === 4) {
+                    threeOfAKindValue = i;
+                    hasThreeOfAKind = true;
                     hasFourOfAKind = true;
-                }
-                if (counts[i] === 5) {
+                } else if (counts[i] === 5) {
+                    threeOfAKindValue = i;
+                    hasThreeOfAKind = true;
+                    hasFourOfAKind = true;
                     hasFiveOfAKind = true;
                 }
             }
 
-            // Détection de la suite (ex: 1-2-3-4-5 ou 2-3-4-5-6)
-            const diceValuesSorted = [...new Set(dices.map(d => parseInt(d.value)).sort((a, b) => a - b))];
-            const STRAIGHTS = [
-                [1, 2, 3, 4, 5],
-                [2, 3, 4, 5, 6]
-            ];
+            const sortedValues = dices.map(dice => parseInt(dice.value)).sort((a, b) => a - b); // Trie les valeurs de dé
 
-            hasStraight = STRAIGHTS.some(straight =>
-                straight.every(num => diceValuesSorted.includes(num))
-            );
+            // Vérifie si les valeurs triées forment une suite
+            hasStraight = sortedValues.every((value, index) => index === 0 || value === sortedValues[index - 1] + 1);
 
-            // Renvoyer les combinaisons valides
+            // Vérifier si la somme ne dépasse pas 8
+            const isLessThanEqual8 = sum <= 8;
+
+            // Retourner les combinaisons possibles via leur ID
             allCombinations.forEach(combination => {
                 if (
                     (combination.id.includes('brelan') && hasThreeOfAKind && parseInt(combination.id.slice(-1)) === threeOfAKindValue) ||
@@ -198,7 +240,48 @@ const GameService = {
                 }
             });
 
+
+            const notOnlyBrelan = availableCombinations.some(combination => !combination.id.includes('brelan'));
+
+            if (isSec && availableCombinations.length > 0 && notOnlyBrelan) {
+                availableCombinations.push(allCombinations.find(combination => combination.id === 'sec'));
+            }
+
             return availableCombinations;
+        }
+    },
+    grid: {
+        resetcanBeCheckedCells: (grid) => {
+            const updatedGrid = grid.map(row =>
+                row.map(cell => ({
+                    ...cell,
+                    canBeChecked: false
+                }))
+            );
+            return updatedGrid;
+        },
+        updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {
+            const updatedGrid = grid.map(row =>
+                row.map(cell => ({
+                    ...cell,
+                    canBeChecked: cell.id === idSelectedChoice
+                }))
+            );
+            return updatedGrid;
+        },
+        selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
+            const updatedGrid = grid.map((row, rIdx) =>
+                row.map((cell, cIdx) => {
+                    if (rIdx === rowIndex && cIdx === cellIndex && cell.id === idCell) {
+                        return {
+                            ...cell,
+                            owner: currentTurn
+                        };
+                    }
+                    return cell;
+                })
+            );
+            return updatedGrid;
         },
     },
     dices: {

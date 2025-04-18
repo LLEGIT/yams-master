@@ -17,19 +17,16 @@ export default function OnlineGameController() {
     const [gameCancelled, setGameCancelled] = useState(false);
 
     useEffect(() => {
-        console.log('[emit][queue.join]:', socket.id);
         socket.emit("queue.join");
         setInQueue(false);
         setInGame(false);
 
         socket.on('queue.added', (data) => {
-            console.log('[listen][queue.added]:', data);
             setInQueue(data['inQueue']);
             setInGame(data['inGame']);
         });
 
         socket.on('game.start', (data) => {
-            console.log('[listen][game.start]:', data);
             setInQueue(data['inQueue']);
             setInGame(data['inGame']);
             setIdOpponent(data['idOpponent']);

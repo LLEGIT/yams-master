@@ -12,13 +12,11 @@ export const socket = io(socketEndpoint, {
 export let hasConnection = false;
 
 socket.on("connect", () => {
-    console.log("connect: ", socket.id);
     hasConnection = true;
 });
 
 socket.on("disconnect", () => {
     hasConnection = false;
-    console.log("disconnected from server"); // undefined
     socket.removeAllListeners();
 });
 
