@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import { Link } from "@react-navigation/native";
+import PillButton from '../components/PillButton';
 
 export default function HomeScreen() {
     const socket = useContext(SocketContext);
@@ -21,9 +22,13 @@ export default function HomeScreen() {
 
             {socket && (
                 <>
-                    <Image style={{ width: 200, height: 200 }} source={require('./../../logo.png')} />
-                    <Link style={styles.link} screen="OnlineScreen">Play online</Link>
-                    <Link style={styles.link} screen="VsBotScreen">Play against a bot</Link>
+                    <Image style={{ width: 200, height: 200, borderRadius: 20 }} source={require('./../../logo.png')} />
+                    <Link style={styles.link} screen="OnlineScreen">
+                    <PillButton title="Play online" />
+                    </Link>
+                    <Link style={styles.link} screen="VsBotScreen">
+                    <PillButton title="Play against a bot" />
+                    </Link>
                 </>
             )}
         </View>
@@ -52,10 +57,6 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     link: {
-        fontSize: 20,
-        borderColor: "black",
-        borderWidth: 1,
         padding: 10,
-        borderRadius: 10
     }
 });
