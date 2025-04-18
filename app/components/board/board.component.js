@@ -53,7 +53,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
                 <OpponentDeck deck={opponentDeck} />
             </View>
             <View style={[styles.row, { height: '40%' }]}>
-                <Grid grid={gameState.grid} />
+                <Grid />
                 <View style={styles.choicesContainer}>
                     <Choices />
                 </View>

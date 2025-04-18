@@ -2,9 +2,11 @@ import { useContext } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import { Link } from "@react-navigation/native";
+import { AuthContext } from "../contexts/auth.context";
 
 export default function HomeScreen() {
     const socket = useContext(SocketContext);
+    const { username, logout } = useContext(AuthContext);
 
     return (
         <View style={styles.container}>
@@ -21,6 +23,8 @@ export default function HomeScreen() {
 
             {socket && (
                 <>
+                    <Text onPress={() => logout()}>Logout</Text>
+                    <Text>Welcome back {username ?? 'anonymous'}</Text>
                     <Image style={{ width: 200, height: 200 }} source={require('./../../logo.png')} />
                     <Link style={styles.link} screen="OnlineScreen">Play online</Link>
                     <Link style={styles.link} screen="VsBotScreen">Play against a bot</Link>
