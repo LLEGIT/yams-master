@@ -231,11 +231,21 @@ io.on('connection', socket => {
   });
 
   socket.on('game.choices.selected', (data) => {
-    // gestion des choix
     const gameIndex = GameService.utils.findGameIndexBySocketId(games, socket.id);
-    games[gameIndex].gameState.choices.idSelectedChoice = data.choiceId;
+    const game = games[gameIndex];
 
-    updateClientsViewChoices(games[gameIndex]);
+    // Save selected choice in game state
+    game.gameState.choices.idSelectedChoice = data.choiceId;
+
+    // Update grid with cells that can be clicked
+    game.gameState.grid = GameService.grid.updateGridAfterSelectingChoice(
+      data.choiceId,
+      game.gameState.grid
+    );
+
+    // Notify both players of updated choice and updated grid
+    updateClientsViewChoices(game);
+    updateClientsViewGrid(game);
   });
 
   socket.on('game.grid.selected', (data) => {
@@ -273,7 +283,7 @@ io.on('connection', socket => {
 });
 
 io.on('disconnect', reason => {
-  console.log(`[${socket.id}] socket disconnected - ${reason}`);
+  console.log(`[${socket.id}] socket disconnected - ${reason}`)
 
   // Handle cancel logic on disconnect
   const game = findGameBySocket(socket);
