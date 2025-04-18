@@ -7,6 +7,7 @@ import PlayerTimer from "./timers/player-timer-component";
 import OpponentDeck from "./decks/opponent-deck.component";
 import OpponentTimer from "./timers/opponent-timer-component";
 import Choices from "./choices/choices.component";
+import Grid from "./grid/grid.component";
 
 const OpponentInfos = ({ idOpponent }) => (
     <View style={styles.opponentInfosContainer}>
@@ -17,12 +18,6 @@ const OpponentInfos = ({ idOpponent }) => (
 const OpponentScore = ({ score }) => (
     <View style={styles.opponentScoreContainer}>
         <Text>Score: {score}</Text>
-    </View>
-);
-
-const Grid = ({ grid }) => (
-    <View style={styles.gridContainer}>
-        <Text>Grid: {JSON.stringify(grid)}</Text>
     </View>
 );
 

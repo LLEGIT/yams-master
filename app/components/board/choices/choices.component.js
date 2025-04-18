@@ -50,7 +50,7 @@ const Choices = () => {
                     >
                         <Text style={styles.choiceText}>{choice.value}</Text>
                     </TouchableOpacity>
-                ))}
+                )) || <Text>No choices available</Text>}
         </View>
     );
 };
