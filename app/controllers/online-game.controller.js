@@ -46,6 +46,11 @@ export default function OnlineGameController() {
             }, 2000);
         });
 
+        socket.on('game.over', () => {
+            alert('Game over !');
+            return navigation.navigate('HomeScreen');
+        });
+
         return () => {
             socket.off('queue.added');
             socket.off('game.start');

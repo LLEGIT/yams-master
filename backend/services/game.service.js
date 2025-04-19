@@ -283,6 +283,41 @@ const GameService = {
             );
             return updatedGrid;
         },
+        checkFullLine: (grid, currentPlayer) => {
+            const size = grid.length;
+
+            // Check rows
+            for (let row of grid) {
+                if (row.every(cell => cell.owner === currentPlayer)) return true;
+            }
+
+            // Check columns
+            for (let c = 0; c < size; c++) {
+                if (grid.every(row => row[c].owner === currentPlayer)) return true;
+            }
+
+            // Check main diagonal (top-left to bottom-right)
+            let mainDiagonalFull = true;
+            for (let i = 0; i < size; i++) {
+                if (grid[i][i].owner !== currentPlayer) {
+                    mainDiagonalFull = false;
+                    break;
+                }
+            }
+            if (mainDiagonalFull) return true;
+
+            // Check anti-diagonal (top-right to bottom-left)
+            let antiDiagonalFull = true;
+            for (let i = 0; i < size; i++) {
+                if (grid[i][size - 1 - i].owner !== currentPlayer) {
+                    antiDiagonalFull = false;
+                    break;
+                }
+            }
+            if (antiDiagonalFull) return true;
+
+            return false;
+        },
     },
     dices: {
         roll: (dicesToRoll) => {
@@ -347,7 +382,56 @@ const GameService = {
             }
             return -1;
         }
-    }
+    },
+    score: {
+        calculateScore: (gameState) => {
+            const grid = gameState.grid;
+            const currentPlayer = gameState.currentTurn;
+
+            let newPoints = 0;
+            const numRows = grid.length;
+            const numCols = grid[0].length;
+
+            const isOwned = (row, col) => {
+                return (
+                    row >= 0 &&
+                    col >= 0 &&
+                    row < numRows &&
+                    col < numCols &&
+                    grid[row][col].owner === currentPlayer
+                );
+            };
+
+            // Check all possible 3-cell combinations
+            for (let r = 0; r < numRows; r++) {
+                for (let c = 0; c < numCols; c++) {
+                    // Horizontal
+                    if (isOwned(r, c) && isOwned(r, c + 1) && isOwned(r, c + 2)) newPoints++;
+
+                    // Vertical
+                    if (isOwned(r, c) && isOwned(r + 1, c) && isOwned(r + 2, c)) newPoints++;
+
+                    // Diagonal down-right
+                    if (isOwned(r, c) && isOwned(r + 1, c + 1) && isOwned(r + 2, c + 2)) newPoints++;
+
+                    // Diagonal down-left
+                    if (isOwned(r, c) && isOwned(r + 1, c - 1) && isOwned(r + 2, c - 2)) newPoints++;
+                }
+            }
+
+            // Mise à jour du score du joueur
+            if (!gameState.scores) {
+                gameState.scores = {
+                    'player:1': 0,
+                    'player:2': 0
+                };
+            }
+
+            gameState.scores[currentPlayer] += newPoints;
+
+            return gameState;
+        },
+    },
 }
 
 module.exports = GameService;
