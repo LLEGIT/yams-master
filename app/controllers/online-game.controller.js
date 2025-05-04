@@ -30,7 +30,13 @@ export default function OnlineGameController() {
             setInQueue(data['inQueue']);
             setInGame(data['inGame']);
             setIdOpponent(data['idOpponent']);
-            setGameState(data);
+            setGameState({
+                ...data,
+                player1Pions: 12,
+                player2Pions: 12,
+                player1Score: 0,
+                player2Score: 0
+            });
         });
 
         socket.on('game.state.update', (data) => {
@@ -78,6 +84,7 @@ export default function OnlineGameController() {
             socket.off('game.start');
             socket.off('game.state.update');
             socket.off('game.cancelled');
+            socket.off('game.over');
         };
     }, []);
 

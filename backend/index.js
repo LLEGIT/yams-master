@@ -163,6 +163,9 @@ io.on('connection', socket => {
         ? game.player2Socket
         : game.player1Socket;
 
+      // Reset game state
+      game.gameState = GameService.init.gameState();
+
       // Notify the other player
       otherPlayerSocket.emit('game.cancelled', {
         message: 'Your opponent has left the game.'
@@ -276,10 +279,16 @@ io.on('connection', socket => {
     const game = games[gameIndex];
     const currentPlayer = game.gameState.currentTurn;
 
+    // Check if player has pions left
+    if ((currentPlayer === 'player:1' && game.gameState.player1Pions <= 0) ||
+        (currentPlayer === 'player:2' && game.gameState.player2Pions <= 0)) {
+      return; // Player can't play if they have no pions left
+    }
+
     game.gameState.grid = GameService.grid.resetcanBeCheckedCells(game.gameState.grid);
     game.gameState.grid = GameService.grid.selectCell(data.cellId, data.rowIndex, data.cellIndex, currentPlayer, game.gameState.grid);
 
-    // Update the remaining pions count
+    // Decrease pions count
     if (currentPlayer === 'player:1') {
       game.gameState.player1Pions--;
     } else {
@@ -288,11 +297,16 @@ io.on('connection', socket => {
 
     game.gameState = GameService.score.calculateScore(game.gameState);
 
-    const hasWon = GameService.grid.checkFullLine(game.gameState.grid, currentPlayer);
-
-    if (hasWon) {
-      game.player1Socket.emit('game.over', { winner: currentPlayer, winType: 'alignment' });
-      game.player2Socket.emit('game.over', { winner: currentPlayer, winType: 'alignment' });
+    // Check for win conditions
+    if (game.gameState.winner) {
+      game.player1Socket.emit('game.over', { 
+        winner: game.gameState.winner, 
+        winType: game.gameState.winType 
+      });
+      game.player2Socket.emit('game.over', { 
+        winner: game.gameState.winner, 
+        winType: game.gameState.winType 
+      });
       return;
     }
 
@@ -312,18 +326,24 @@ io.on('connection', socket => {
 
     // Emit updated game state to both players
     game.player1Socket.emit('game.state.update', {
-      currentTurn: game.gameState.currentTurn,
-      player1Score: game.gameState.player1Score,
-      player2Score: game.gameState.player2Score,
-      player1Pions: game.gameState.player1Pions,
-      player2Pions: game.gameState.player2Pions
+        currentTurn: game.gameState.currentTurn,
+        player1Score: game.gameState.player1Score,
+        player2Score: game.gameState.player2Score,
+        player1Pions: game.gameState.player1Pions,
+        player2Pions: game.gameState.player2Pions,
+        grid: game.gameState.grid,
+        choices: game.gameState.choices,
+        deck: game.gameState.deck
     });
     game.player2Socket.emit('game.state.update', {
-      currentTurn: game.gameState.currentTurn,
-      player1Score: game.gameState.player1Score,
-      player2Score: game.gameState.player2Score,
-      player1Pions: game.gameState.player1Pions,
-      player2Pions: game.gameState.player2Pions
+        currentTurn: game.gameState.currentTurn,
+        player1Score: game.gameState.player1Score,
+        player2Score: game.gameState.player2Score,
+        player1Pions: game.gameState.player1Pions,
+        player2Pions: game.gameState.player2Pions,
+        grid: game.gameState.grid,
+        choices: game.gameState.choices,
+        deck: game.gameState.deck
     });
 
     game.player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', game.gameState));
@@ -336,6 +356,29 @@ io.on('connection', socket => {
 
   socket.on('disconnect', reason => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
+
+    // Handle cancel logic on disconnect
+    const game = findGameBySocket(socket);
+
+    if (game) {
+      const otherPlayerSocket = (game.player1Socket.id === socket.id)
+        ? game.player2Socket
+        : game.player1Socket;
+
+      // Reset game state
+      game.gameState = GameService.init.gameState();
+
+      otherPlayerSocket.emit('game.cancelled', {
+        message: 'Your opponent has disconnected.'
+      });
+
+      games = games.filter(g => g.idGame !== game.idGame);
+
+      console.log(`[${socket.id}] disconnected from game ${game.idGame}`);
+    }
+
+    // Remove from queue if they were still waiting
+    queue = queue.filter(s => s.id !== socket.id);
   });
 });
 

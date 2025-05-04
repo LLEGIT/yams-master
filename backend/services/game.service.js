@@ -25,7 +25,11 @@ const GAME_INIT = {
         choices: {},
         deck: {},
         player1Pions: 12,
-        player2Pions: 12
+        player2Pions: 12,
+        scores: {
+            'player:1': 0,
+            'player:2': 0
+        }
     }
 }
 
@@ -99,6 +103,10 @@ const GameService = {
             game['gameState']['deck'] = { ...DECK_INIT };
             game['gameState']['choices'] = { ...CHOICES_INIT };
             game['gameState']['grid'] = [...GRID_INIT];
+            game['gameState']['player1Pions'] = 12;
+            game['gameState']['player2Pions'] = 12;
+            game['gameState']['player1Score'] = 0;
+            game['gameState']['player2Score'] = 0;
             return game;
         },
         deck: () => {
@@ -313,12 +321,6 @@ const GameService = {
             const updatedGrid = grid.map((row, rIdx) =>
                 row.map((cell, cIdx) => {
                     if (rIdx === rowIndex && cIdx === cellIndex && cell.id === idCell && cell.owner === null) {
-                        // Decrease the number of pions for the current player
-                        if (currentTurn === 'player:1') {
-                            grid.player1Pions--;
-                        } else {
-                            grid.player2Pions--;
-                        }
                         return {
                             ...cell,
                             owner: currentTurn
@@ -460,6 +462,7 @@ const GameService = {
                             // Check for 5-cell alignment (instant win)
                             if (isOwned(r, c + 4)) {
                                 gameState.winner = currentPlayer;
+                                gameState.winType = 'alignment';
                                 return gameState;
                             }
                         }
@@ -474,6 +477,7 @@ const GameService = {
                             // Check for 5-cell alignment (instant win)
                             if (isOwned(r + 4, c)) {
                                 gameState.winner = currentPlayer;
+                                gameState.winType = 'alignment';
                                 return gameState;
                             }
                         }
@@ -488,6 +492,7 @@ const GameService = {
                             // Check for 5-cell alignment (instant win)
                             if (isOwned(r + 4, c + 4)) {
                                 gameState.winner = currentPlayer;
+                                gameState.winType = 'alignment';
                                 return gameState;
                             }
                         }
@@ -502,6 +507,7 @@ const GameService = {
                             // Check for 5-cell alignment (instant win)
                             if (isOwned(r + 4, c - 4)) {
                                 gameState.winner = currentPlayer;
+                                gameState.winType = 'alignment';
                                 return gameState;
                             }
                         }
@@ -509,7 +515,7 @@ const GameService = {
                 }
             }
 
-            // Mise à jour du score du joueur
+            // Update player score
             if (!gameState.scores) {
                 gameState.scores = {
                     'player:1': 0,
@@ -518,11 +524,7 @@ const GameService = {
             }
 
             gameState.scores[currentPlayer] += newPoints;
-
-            // Check if a player has no more pions
-            if (gameState.player1Pions === 0 || gameState.player2Pions === 0) {
-                gameState.winner = gameState.scores['player:1'] > gameState.scores['player:2'] ? 'player:1' : 'player:2';
-            }
+            gameState[`${currentPlayer}Score`] = gameState.scores[currentPlayer];
 
             return gameState;
         },

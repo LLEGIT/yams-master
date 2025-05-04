@@ -18,7 +18,7 @@ const OpponentInfos = ({ idOpponent }) => (
 const OpponentScore = ({ score, pions }) => (
     <View style={styles.opponentScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
+        <Text style={styles.pionsText}>Pions: {pions}</Text>
     </View>
 );
 
@@ -31,7 +31,7 @@ const PlayerInfos = ({ idPlayer }) => (
 const PlayerScore = ({ score, pions }) => (
     <View style={styles.playerScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
+        <Text style={styles.pionsText}>Pions: {pions}</Text>
     </View>
 );
 
@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
         height: '100%',
+        backgroundColor: '#fff',
     },
     row: {
         flexDirection: 'row',
@@ -154,8 +155,8 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     pionsText: {
-        fontSize: 14,
-        color: '#444',
-        fontWeight: '500',
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#2196F3',
     },
 });
