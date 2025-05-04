@@ -23,7 +23,9 @@ const GAME_INIT = {
         player2Score: 0,
         grid: [],
         choices: {},
-        deck: {}
+        deck: {},
+        player1Pions: 12,
+        player2Pions: 12
     }
 }
 
@@ -123,7 +125,16 @@ const GameService = {
                     idOpponent:
                         (playerKey === 'player:1')
                             ? game.player2Socket.id
-                            : game.player1Socket.id
+                            : game.player1Socket.id,
+                    currentTurn: game.gameState.currentTurn,
+                    timer: game.gameState.timer,
+                    player1Score: game.gameState.player1Score,
+                    player2Score: game.gameState.player2Score,
+                    player1Pions: game.gameState.player1Pions,
+                    player2Pions: game.gameState.player2Pions,
+                    grid: game.gameState.grid,
+                    choices: game.gameState.choices,
+                    deck: game.gameState.deck
                 };
             },
 
@@ -261,18 +272,53 @@ const GameService = {
             return updatedGrid;
         },
         updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {
+            // Vérifie s'il y a des cases disponibles pour ce choix
+            let hasAvailableCell = false;
+            for (let row of grid) {
+                for (let cell of row) {
+                    if (cell.id === idSelectedChoice && cell.owner === null) {
+                        hasAvailableCell = true;
+                        break;
+                    }
+                }
+                if (hasAvailableCell) break;
+            }
+
+            // Si aucune case n'est disponible, on retourne la grille sans modifications
+            if (!hasAvailableCell) {
+                return grid;
+            }
+
+            // Si des cases sont disponibles, on met à jour la grille
             const updatedGrid = grid.map(row =>
                 row.map(cell => ({
                     ...cell,
-                    canBeChecked: cell.id === idSelectedChoice
+                    canBeChecked: cell.id === idSelectedChoice && cell.owner === null
                 }))
             );
             return updatedGrid;
         },
+        shouldPassTurn: (idSelectedChoice, grid) => {
+            // Vérifie si toutes les cases correspondant au choix sont déjà prises
+            for (let row of grid) {
+                for (let cell of row) {
+                    if (cell.id === idSelectedChoice && cell.owner === null) {
+                        return false; // Il y a au moins une case disponible
+                    }
+                }
+            }
+            return true; // Toutes les cases sont prises
+        },
         selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
             const updatedGrid = grid.map((row, rIdx) =>
                 row.map((cell, cIdx) => {
-                    if (rIdx === rowIndex && cIdx === cellIndex && cell.id === idCell) {
+                    if (rIdx === rowIndex && cIdx === cellIndex && cell.id === idCell && cell.owner === null) {
+                        // Decrease the number of pions for the current player
+                        if (currentTurn === 'player:1') {
+                            grid.player1Pions--;
+                        } else {
+                            grid.player2Pions--;
+                        }
                         return {
                             ...cell,
                             owner: currentTurn
@@ -406,16 +452,60 @@ const GameService = {
             for (let r = 0; r < numRows; r++) {
                 for (let c = 0; c < numCols; c++) {
                     // Horizontal
-                    if (isOwned(r, c) && isOwned(r, c + 1) && isOwned(r, c + 2)) newPoints++;
+                    if (isOwned(r, c) && isOwned(r, c + 1) && isOwned(r, c + 2)) {
+                        newPoints++;
+                        // Check for 4-cell alignment
+                        if (isOwned(r, c + 3)) {
+                            newPoints++;
+                            // Check for 5-cell alignment (instant win)
+                            if (isOwned(r, c + 4)) {
+                                gameState.winner = currentPlayer;
+                                return gameState;
+                            }
+                        }
+                    }
 
                     // Vertical
-                    if (isOwned(r, c) && isOwned(r + 1, c) && isOwned(r + 2, c)) newPoints++;
+                    if (isOwned(r, c) && isOwned(r + 1, c) && isOwned(r + 2, c)) {
+                        newPoints++;
+                        // Check for 4-cell alignment
+                        if (isOwned(r + 3, c)) {
+                            newPoints++;
+                            // Check for 5-cell alignment (instant win)
+                            if (isOwned(r + 4, c)) {
+                                gameState.winner = currentPlayer;
+                                return gameState;
+                            }
+                        }
+                    }
 
                     // Diagonal down-right
-                    if (isOwned(r, c) && isOwned(r + 1, c + 1) && isOwned(r + 2, c + 2)) newPoints++;
+                    if (isOwned(r, c) && isOwned(r + 1, c + 1) && isOwned(r + 2, c + 2)) {
+                        newPoints++;
+                        // Check for 4-cell alignment
+                        if (isOwned(r + 3, c + 3)) {
+                            newPoints++;
+                            // Check for 5-cell alignment (instant win)
+                            if (isOwned(r + 4, c + 4)) {
+                                gameState.winner = currentPlayer;
+                                return gameState;
+                            }
+                        }
+                    }
 
                     // Diagonal down-left
-                    if (isOwned(r, c) && isOwned(r + 1, c - 1) && isOwned(r + 2, c - 2)) newPoints++;
+                    if (isOwned(r, c) && isOwned(r + 1, c - 1) && isOwned(r + 2, c - 2)) {
+                        newPoints++;
+                        // Check for 4-cell alignment
+                        if (isOwned(r + 3, c - 3)) {
+                            newPoints++;
+                            // Check for 5-cell alignment (instant win)
+                            if (isOwned(r + 4, c - 4)) {
+                                gameState.winner = currentPlayer;
+                                return gameState;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -428,6 +518,11 @@ const GameService = {
             }
 
             gameState.scores[currentPlayer] += newPoints;
+
+            // Check if a player has no more pions
+            if (gameState.player1Pions === 0 || gameState.player2Pions === 0) {
+                gameState.winner = gameState.scores['player:1'] > gameState.scores['player:2'] ? 'player:1' : 'player:2';
+            }
 
             return gameState;
         },

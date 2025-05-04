@@ -33,6 +33,17 @@ export default function OnlineGameController() {
             setGameState(data);
         });
 
+        socket.on('game.state.update', (data) => {
+            setGameState(prevState => ({
+                ...prevState,
+                currentTurn: data.currentTurn,
+                player1Score: data.player1Score,
+                player2Score: data.player2Score,
+                player1Pions: data.player1Pions,
+                player2Pions: data.player2Pions
+            }));
+        });
+
         socket.on('game.cancelled', (data) => {
             setGameState(null);
             setGameCancelled(true);
@@ -46,14 +57,26 @@ export default function OnlineGameController() {
             }, 2000);
         });
 
-        socket.on('game.over', () => {
-            alert('Game over !');
+        socket.on('game.over', (data) => {
+            let message = 'Game over !';
+            if (data.winner) {
+                const isWinner = data.winner === (gameState.currentTurn === 'player:1' ? 'player:1' : 'player:2');
+                if (data.winType === 'alignment') {
+                    message = isWinner ? 'Vous avez gagné avec un alignement de 5 pions !' : 'Votre adversaire a gagné avec un alignement de 5 pions !';
+                } else if (data.winType === 'noPions') {
+                    message = isWinner ? 'Vous avez gagné car votre adversaire n\'a plus de pions !' : 'Votre adversaire a gagné car vous n\'avez plus de pions !';
+                } else {
+                    message = isWinner ? 'Vous avez gagné !' : 'Votre adversaire a gagné !';
+                }
+            }
+            alert(message);
             return navigation.navigate('HomeScreen');
         });
 
         return () => {
             socket.off('queue.added');
             socket.off('game.start');
+            socket.off('game.state.update');
             socket.off('game.cancelled');
         };
     }, []);

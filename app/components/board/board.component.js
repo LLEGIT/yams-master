@@ -15,9 +15,10 @@ const OpponentInfos = ({ idOpponent }) => (
     </View>
 );
 
-const OpponentScore = ({ score }) => (
+const OpponentScore = ({ score, pions }) => (
     <View style={styles.opponentScoreContainer}>
-        <Text>Score: {score}</Text>
+        <Text style={styles.scoreText}>Score: {score}</Text>
+        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
     </View>
 );
 
@@ -27,9 +28,10 @@ const PlayerInfos = ({ idPlayer }) => (
     </View>
 );
 
-const PlayerScore = ({ score }) => (
+const PlayerScore = ({ score, pions }) => (
     <View style={styles.playerScoreContainer}>
-        <Text>Score: {score}</Text>
+        <Text style={styles.scoreText}>Score: {score}</Text>
+        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
     </View>
 );
 
@@ -37,6 +39,8 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
     const isPlayer1 = gameState?.currentTurn === 'player:1';
     const playerScore = isPlayer1 ? gameState.player1Score : gameState.player2Score;
     const opponentScore = isPlayer1 ? gameState.player2Score : gameState.player1Score;
+    const playerPions = isPlayer1 ? gameState.player1Pions : gameState.player2Pions;
+    const opponentPions = isPlayer1 ? gameState.player2Pions : gameState.player1Pions;
     const playerDeck = isPlayer1 ? gameState.player1Deck : gameState.player2Deck;
     const opponentDeck = isPlayer1 ? gameState.player2Deck : gameState.player1Deck;
 
@@ -46,7 +50,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
                 <OpponentInfos idOpponent={idOpponent} />
                 <View style={styles.opponentTimerScoreContainer}>
                     <OpponentTimer time={isPlayer1 ? 0 : gameState.timer} />
-                    <OpponentScore score={opponentScore} />
+                    <OpponentScore score={opponentScore} pions={opponentPions} />
                 </View>
             </View>
             <View style={[styles.row, { height: '25%' }]}>
@@ -65,7 +69,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
                 <PlayerInfos idPlayer={idPlayer} />
                 <View style={styles.playerTimerScoreContainer}>
                     <PlayerTimer time={isPlayer1 ? gameState.timer : 0} />
-                    <PlayerScore score={playerScore} />
+                    <PlayerScore score={playerScore} pions={playerPions} />
                 </View>
             </View>
         </View>
@@ -108,6 +112,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 5,
     },
     gridContainer: {
         flex: 7,
@@ -140,6 +145,17 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 5,
         backgroundColor: "lightgrey"
+    },
+    scoreText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
+    pionsText: {
+        fontSize: 14,
+        color: '#444',
+        fontWeight: '500',
     },
 });

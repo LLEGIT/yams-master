@@ -279,13 +279,28 @@ io.on('connection', socket => {
     game.gameState.grid = GameService.grid.resetcanBeCheckedCells(game.gameState.grid);
     game.gameState.grid = GameService.grid.selectCell(data.cellId, data.rowIndex, data.cellIndex, currentPlayer, game.gameState.grid);
 
+    // Update the remaining pions count
+    if (currentPlayer === 'player:1') {
+      game.gameState.player1Pions--;
+    } else {
+      game.gameState.player2Pions--;
+    }
+
     game.gameState = GameService.score.calculateScore(game.gameState);
 
     const hasWon = GameService.grid.checkFullLine(game.gameState.grid, currentPlayer);
 
     if (hasWon) {
-      game.player1Socket.emit('game.over', { winner: currentPlayer });
-      game.player2Socket.emit('game.over', { winner: currentPlayer });
+      game.player1Socket.emit('game.over', { winner: currentPlayer, winType: 'alignment' });
+      game.player2Socket.emit('game.over', { winner: currentPlayer, winType: 'alignment' });
+      return;
+    }
+
+    // Check if a player has no more pions
+    if (game.gameState.player1Pions === 0 || game.gameState.player2Pions === 0) {
+      const winner = game.gameState.scores['player:1'] > game.gameState.scores['player:2'] ? 'player:1' : 'player:2';
+      game.player1Socket.emit('game.over', { winner: winner, winType: 'noPions' });
+      game.player2Socket.emit('game.over', { winner: winner, winType: 'noPions' });
       return;
     }
 
@@ -294,6 +309,22 @@ io.on('connection', socket => {
 
     game.gameState.deck = GameService.init.deck();
     game.gameState.choices = GameService.init.choices();
+
+    // Emit updated game state to both players
+    game.player1Socket.emit('game.state.update', {
+      currentTurn: game.gameState.currentTurn,
+      player1Score: game.gameState.player1Score,
+      player2Score: game.gameState.player2Score,
+      player1Pions: game.gameState.player1Pions,
+      player2Pions: game.gameState.player2Pions
+    });
+    game.player2Socket.emit('game.state.update', {
+      currentTurn: game.gameState.currentTurn,
+      player1Score: game.gameState.player1Score,
+      player2Score: game.gameState.player2Score,
+      player1Pions: game.gameState.player1Pions,
+      player2Pions: game.gameState.player2Pions
+    });
 
     game.player1Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:1', game.gameState));
     game.player2Socket.emit('game.timer', GameService.send.forPlayer.gameTimer('player:2', game.gameState));
