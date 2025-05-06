@@ -40,61 +40,47 @@ export default function OnlineGameController() {
         });
 
         socket.on('game.state.update', (data) => {
-            setGameState(prevState => ({
-                ...prevState,
-                currentTurn: data.currentTurn,
-                player1Score: data.player1Score,
-                player2Score: data.player2Score,
-                player1Pions: data.player1Pions,
-                player2Pions: data.player2Pions
-            }));
-        });
-
-        socket.on('game.cancelled', (data) => {
-            setGameState(null);
-            setGameCancelled(true);
-            setInGame(false);
-
-            setTimeout(() => {
-                setInQueue(false);
-                setIdOpponent(null);
-                setGameCancelled(false);
-                return navigation.navigate('HomeScreen');
-            }, 2000);
+            setGameState(prevState => {
+                if (!prevState) return null;
+                return {
+                    ...prevState,
+                    currentTurn: data.currentTurn,
+                    player1Score: data.player1Score,
+                    player2Score: data.player2Score,
+                    player1Pions: data.player1Pions,
+                    player2Pions: data.player2Pions,
+                    player1Socket: prevState.player1Socket,
+                    player2Socket: prevState.player2Socket
+                };
+            });
         });
 
         socket.on('game.over', (data) => {
-            let message = 'Game over !';
-            if (data.winner) {
-                const isWinner = data.winner === (gameState.currentTurn === 'player:1' ? 'player:1' : 'player:2');
-                if (data.winType === 'alignment') {
-                    message = isWinner ? 'Vous avez gagné avec un alignement de 5 pions !' : 'Votre adversaire a gagné avec un alignement de 5 pions !';
-                } else if (data.winType === 'noPions') {
-                    message = isWinner ? 'Vous avez gagné car votre adversaire n\'a plus de pions !' : 'Votre adversaire a gagné car vous n\'avez plus de pions !';
-                } else {
-                    message = isWinner ? 'Vous avez gagné !' : 'Votre adversaire a gagné !';
-                }
-            }
-            alert(message);
-            return navigation.navigate('HomeScreen');
+            setInGame(false);
+            setInQueue(false);
+            navigation.navigate('Home');
+        });
+
+        socket.on('queue.cancelled', (data) => {
+            setGameCancelled(true);
+            setInQueue(false);
+            setInGame(false);
+            setTimeout(() => {
+                navigation.navigate('Home');
+            }, 3000);
         });
 
         return () => {
             socket.off('queue.added');
             socket.off('game.start');
             socket.off('game.state.update');
-            socket.off('game.cancelled');
             socket.off('game.over');
+            socket.off('queue.cancelled');
         };
     }, []);
 
     const handleCancel = () => {
-        socket.emit('queue.leave');
-        setInQueue(false);
-        setInGame(false);
-        setIdOpponent(null);
-        setGameState(null);
-        navigation.navigate('HomeScreen');
+        socket.emit("queue.leave");
     };
 
     return (
@@ -118,7 +104,7 @@ export default function OnlineGameController() {
                 </>
             )}
             {gameCancelled && <Text>Your game has been cancelled. Redirection to homepage...</Text>}
-            {inGame && <Board gameState={gameState} idPlayer={socket.id} idOpponent={idOpponent} />}
+            {inGame && gameState && <Board gameState={gameState} idPlayer={socket.id} idOpponent={idOpponent} />}
         </View>
     );
 }

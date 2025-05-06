@@ -18,7 +18,7 @@ const OpponentInfos = ({ idOpponent }) => (
 const OpponentScore = ({ score, pions }) => (
     <View style={styles.opponentScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions: {pions}</Text>
+        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
     </View>
 );
 
@@ -31,16 +31,34 @@ const PlayerInfos = ({ idPlayer }) => (
 const PlayerScore = ({ score, pions }) => (
     <View style={styles.playerScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions: {pions}</Text>
+        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
     </View>
 );
 
 const Board = ({ gameState, idPlayer, idOpponent }) => {
+    // Déterminer si le joueur actuel est player1 ou player2
+    const isCurrentPlayer1 = idPlayer === gameState.player1Socket?.id;
+    
+    // Calculer le tour actuel
     const isPlayer1 = gameState?.currentTurn === 'player:1';
-    const playerScore = isPlayer1 ? gameState.player1Score : gameState.player2Score;
-    const opponentScore = isPlayer1 ? gameState.player2Score : gameState.player1Score;
-    const playerPions = isPlayer1 ? gameState.player1Pions : gameState.player2Pions;
-    const opponentPions = isPlayer1 ? gameState.player2Pions : gameState.player1Pions;
+    
+    // Calculer les scores et pions
+    let topScore, topPions, bottomScore, bottomPions;
+    
+    if (isCurrentPlayer1) {
+        // Si le joueur actuel est player1
+        topScore = gameState.player2Score;
+        topPions = gameState.player2Pions;
+        bottomScore = gameState.player1Score;
+        bottomPions = gameState.player1Pions;
+    } else {
+        // Si le joueur actuel est player2
+        topScore = gameState.player1Score;
+        topPions = gameState.player1Pions;
+        bottomScore = gameState.player2Score;
+        bottomPions = gameState.player2Pions;
+    }
+
     const playerDeck = isPlayer1 ? gameState.player1Deck : gameState.player2Deck;
     const opponentDeck = isPlayer1 ? gameState.player2Deck : gameState.player1Deck;
 
@@ -50,7 +68,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
                 <OpponentInfos idOpponent={idOpponent} />
                 <View style={styles.opponentTimerScoreContainer}>
                     <OpponentTimer time={isPlayer1 ? 0 : gameState.timer} />
-                    <OpponentScore score={opponentScore} pions={opponentPions} />
+                    <OpponentScore score={topScore} pions={topPions} />
                 </View>
             </View>
             <View style={[styles.row, { height: '25%' }]}>
@@ -69,7 +87,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
                 <PlayerInfos idPlayer={idPlayer} />
                 <View style={styles.playerTimerScoreContainer}>
                     <PlayerTimer time={isPlayer1 ? gameState.timer : 0} />
-                    <PlayerScore score={playerScore} pions={playerPions} />
+                    <PlayerScore score={bottomScore} pions={bottomPions} />
                 </View>
             </View>
         </View>
@@ -114,6 +132,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 5,
+        backgroundColor: "lightgrey"
     },
     gridContainer: {
         flex: 7,

@@ -123,23 +123,18 @@ const GameService = {
     send: {
         forPlayer: {
             viewGameState: (playerKey, game) => {
+                const isCurrentTurn = game.gameState.currentTurn === playerKey;
                 return {
                     inQueue: false,
                     inGame: true,
-                    idPlayer:
-                        (playerKey === 'player:1')
-                            ? game.player1Socket.id
-                            : game.player2Socket.id,
-                    idOpponent:
-                        (playerKey === 'player:1')
-                            ? game.player2Socket.id
-                            : game.player1Socket.id,
+                    idPlayer: playerKey === 'player:1' ? game.player1Socket.id : game.player2Socket.id,
+                    idOpponent: playerKey === 'player:1' ? game.player2Socket.id : game.player1Socket.id,
                     currentTurn: game.gameState.currentTurn,
                     timer: game.gameState.timer,
-                    player1Score: game.gameState.player1Score,
-                    player2Score: game.gameState.player2Score,
-                    player1Pions: game.gameState.player1Pions,
-                    player2Pions: game.gameState.player2Pions,
+                    player1Score: isCurrentTurn ? game.gameState.player1Score : game.gameState.player2Score,
+                    player2Score: isCurrentTurn ? game.gameState.player2Score : game.gameState.player1Score,
+                    player1Pions: isCurrentTurn ? game.gameState.player1Pions : game.gameState.player2Pions,
+                    player2Pions: isCurrentTurn ? game.gameState.player2Pions : game.gameState.player1Pions,
                     grid: game.gameState.grid,
                     choices: game.gameState.choices,
                     deck: game.gameState.deck
@@ -439,6 +434,7 @@ const GameService = {
             let newPoints = 0;
             const numRows = grid.length;
             const numCols = grid[0].length;
+            const checkedAlignments = new Set(); // Pour éviter de compter plusieurs fois le même alignement
 
             const isOwned = (row, col) => {
                 return (
@@ -450,17 +446,18 @@ const GameService = {
                 );
             };
 
-            // Check all possible 3-cell combinations
+            // Check all possible alignments
             for (let r = 0; r < numRows; r++) {
                 for (let c = 0; c < numCols; c++) {
                     // Horizontal
                     if (isOwned(r, c) && isOwned(r, c + 1) && isOwned(r, c + 2)) {
-                        newPoints++;
-                        // Check for 4-cell alignment
-                        if (isOwned(r, c + 3)) {
-                            newPoints++;
-                            // Check for 5-cell alignment (instant win)
-                            if (isOwned(r, c + 4)) {
+                        const alignmentKey = `H${r}-${c}`;
+                        if (!checkedAlignments.has(alignmentKey)) {
+                            checkedAlignments.add(alignmentKey);
+                            newPoints += 1; // 1 point pour un alignement de 3
+                            
+                            // Vérifier si c'est un alignement de 5 (victoire instantanée)
+                            if (isOwned(r, c + 3) && isOwned(r, c + 4)) {
                                 gameState.winner = currentPlayer;
                                 gameState.winType = 'alignment';
                                 return gameState;
@@ -470,12 +467,13 @@ const GameService = {
 
                     // Vertical
                     if (isOwned(r, c) && isOwned(r + 1, c) && isOwned(r + 2, c)) {
-                        newPoints++;
-                        // Check for 4-cell alignment
-                        if (isOwned(r + 3, c)) {
-                            newPoints++;
-                            // Check for 5-cell alignment (instant win)
-                            if (isOwned(r + 4, c)) {
+                        const alignmentKey = `V${r}-${c}`;
+                        if (!checkedAlignments.has(alignmentKey)) {
+                            checkedAlignments.add(alignmentKey);
+                            newPoints += 1; // 1 point pour un alignement de 3
+                            
+                            // Vérifier si c'est un alignement de 5 (victoire instantanée)
+                            if (isOwned(r + 3, c) && isOwned(r + 4, c)) {
                                 gameState.winner = currentPlayer;
                                 gameState.winType = 'alignment';
                                 return gameState;
@@ -485,12 +483,13 @@ const GameService = {
 
                     // Diagonal down-right
                     if (isOwned(r, c) && isOwned(r + 1, c + 1) && isOwned(r + 2, c + 2)) {
-                        newPoints++;
-                        // Check for 4-cell alignment
-                        if (isOwned(r + 3, c + 3)) {
-                            newPoints++;
-                            // Check for 5-cell alignment (instant win)
-                            if (isOwned(r + 4, c + 4)) {
+                        const alignmentKey = `DR${r}-${c}`;
+                        if (!checkedAlignments.has(alignmentKey)) {
+                            checkedAlignments.add(alignmentKey);
+                            newPoints += 1; // 1 point pour un alignement de 3
+                            
+                            // Vérifier si c'est un alignement de 5 (victoire instantanée)
+                            if (isOwned(r + 3, c + 3) && isOwned(r + 4, c + 4)) {
                                 gameState.winner = currentPlayer;
                                 gameState.winType = 'alignment';
                                 return gameState;
@@ -500,12 +499,13 @@ const GameService = {
 
                     // Diagonal down-left
                     if (isOwned(r, c) && isOwned(r + 1, c - 1) && isOwned(r + 2, c - 2)) {
-                        newPoints++;
-                        // Check for 4-cell alignment
-                        if (isOwned(r + 3, c - 3)) {
-                            newPoints++;
-                            // Check for 5-cell alignment (instant win)
-                            if (isOwned(r + 4, c - 4)) {
+                        const alignmentKey = `DL${r}-${c}`;
+                        if (!checkedAlignments.has(alignmentKey)) {
+                            checkedAlignments.add(alignmentKey);
+                            newPoints += 1; // 1 point pour un alignement de 3
+                            
+                            // Vérifier si c'est un alignement de 5 (victoire instantanée)
+                            if (isOwned(r + 3, c - 3) && isOwned(r + 4, c - 4)) {
                                 gameState.winner = currentPlayer;
                                 gameState.winType = 'alignment';
                                 return gameState;
@@ -523,8 +523,15 @@ const GameService = {
                 };
             }
 
+            // Mettre à jour les scores
             gameState.scores[currentPlayer] += newPoints;
-            gameState[`${currentPlayer}Score`] = gameState.scores[currentPlayer];
+            
+            // Mettre à jour les scores spécifiques aux joueurs
+            if (currentPlayer === 'player:1') {
+                gameState.player1Score = gameState.scores['player:1'];
+            } else {
+                gameState.player2Score = gameState.scores['player:2'];
+            }
 
             return gameState;
         },
