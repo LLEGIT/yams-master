@@ -1,7 +1,5 @@
-// app/controller/online-game.controller.js
-
 import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
 import { useNavigation } from "@react-navigation/native";
 import Board from "../components/board/board.component";
@@ -90,6 +88,10 @@ export default function OnlineGameController() {
 
     const handleCancel = () => {
         socket.emit("queue.leave");
+        setInQueue(false);
+        setInGame(false);
+        setIdOpponent(null);
+        navigation.navigate('HomeScreen');
     };
 
     return (
@@ -109,9 +111,11 @@ export default function OnlineGameController() {
                         <Text style={styles.paragraph}>
                         🕗 Waiting for another player{dots}
                         </Text>
-                        <Text onPress={handleCancel}>
-                        Cancel
-                    </Text>
+                    </View>
+                    <View style={styles.card}>
+                        <TouchableOpacity onPress={handleCancel}>
+                            <Text style={styles.cancelText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </>
             )}
@@ -142,8 +146,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+        marginVertical: 10,
     },
     paragraph: {
+        fontSize: 16,
+    },
+    cancelText: {
+        color: 'red',
         fontSize: 16,
     }
 });

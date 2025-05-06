@@ -25,16 +25,18 @@ export default function HomeScreen() {
             {socket && (
                 <>
                     <Image style={{ width: 200, height: 200, borderRadius: 20 }} source={require('./../../logo.png')} />
-                    <Link style={styles.link} screen="OnlineScreen">
-                    <Text>Welcome back {username ?? 'anonymous'}</Text>
-                    <PillButton title="Play online" />
-                    </Link>
-                    <Link style={styles.link} screen="VsBotScreen">
-                    <PillButton title="Play against a bot" />
-                    </Link>
-                    <Link style={styles.link} onPress={() => logout()}>
-                    <PillButton title="Logout" />
-                    </Link>
+                    <Text style={styles.welcomeText}>Welcome back {username ?? 'anonymous'}</Text>
+                    <View style={styles.buttonContainer}>
+                        <Link style={styles.link} screen="OnlineScreen">
+                            <PillButton title="Play online" />
+                        </Link>
+                        <Link style={styles.link} screen="VsBotScreen">
+                            <PillButton title="Play against a bot" />
+                        </Link>
+                        <Link style={styles.link} onPress={() => logout()}>
+                            <PillButton title="Logout" />
+                        </Link>
+                    </View>
                 </>
             )}
         </View>
@@ -44,10 +46,10 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: 'white',
         gap: 20,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#f5f5f5",
         padding: 20,
     },
     paragraph: {
@@ -64,5 +66,13 @@ const styles = StyleSheet.create({
     },
     link: {
         padding: 10,
+    },
+    welcomeText: {
+        fontSize: 18,
+        marginBottom: 20,
+    },
+    buttonContainer: {
+        gap: 25,
+        alignItems: "center",
     }
 });
