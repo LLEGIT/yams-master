@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
 import { useNavigation } from "@react-navigation/native";
 import Board from "../components/board/board.component";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 export default function OnlineGameController() {
     const navigation = useNavigation();
@@ -15,8 +16,15 @@ export default function OnlineGameController() {
     const [inGame, setInGame] = useState(false);
     const [idOpponent, setIdOpponent] = useState(null);
     const [gameCancelled, setGameCancelled] = useState(false);
+    const [dots, setDots] = useState('');
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            setDots(prev => {
+                if (prev.length >= 3) return '';
+                return prev + '.';
+            });
+        }, 500);
         socket.emit("queue.join");
         setInQueue(false);
         setInGame(false);
@@ -71,6 +79,7 @@ export default function OnlineGameController() {
         });
 
         return () => {
+            clearInterval(interval);
             socket.off('queue.added');
             socket.off('game.start');
             socket.off('game.state.update');
@@ -95,12 +104,15 @@ export default function OnlineGameController() {
 
             {inQueue && (
                 <>
-                    <Text style={styles.paragraph}>
-                        Waiting for another player...
-                    </Text>
-                    <Text onPress={handleCancel}>
+                    <AnimatedBackground/>
+                    <View style={styles.card}>
+                        <Text style={styles.paragraph}>
+                        🕗 Waiting for another player{dots}
+                        </Text>
+                        <Text onPress={handleCancel}>
                         Cancel
                     </Text>
+                    </View>
                 </>
             )}
             {gameCancelled && <Text>Your game has been cancelled. Redirection to homepage...</Text>}
@@ -117,6 +129,19 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         width: '100%',
         height: '100%',
+    },
+    card: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     paragraph: {
         fontSize: 16,
