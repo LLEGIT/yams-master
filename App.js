@@ -8,6 +8,7 @@ import OnlineGameScreen from './app/screens/online-game.screen';
 import VsBotGameScreen from './app/screens/vs-bot-game.screen';
 import { AuthContext, AuthProvider } from './app/contexts/auth.context';
 import UsernameScreen from './app/screens/username.screen';
+import RegisterScreen from './app/screens/register.screen';
 
 const Stack = createStackNavigator();
 LogBox.ignoreAllLogs(true);
@@ -23,7 +24,11 @@ const App = () => {
               return (
                 <Stack.Navigator screenOptions={{ headerShown: false }}>
                   {!username ? (
-                    <Stack.Screen name="UsernameScreen" component={UsernameScreen} />
+                    <>
+                      <Stack.Screen name="UsernameScreen" component={UsernameScreen} />
+                      <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+                    </>
+
                   ) : (
                     <>
                       <Stack.Screen name="HomeScreen" component={HomeScreen} />

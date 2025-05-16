@@ -1,24 +1,27 @@
 import React, { useState, useContext, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, Text, Animated } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Animated, Alert } from 'react-native';
 import { AuthContext } from '../contexts/auth.context';
-import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = () => {
+const RegisterScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { login } = useContext(AuthContext); // Assumes you have a `login` method in context
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const { register } = useContext(AuthContext); // Assumes a register function exists
     const animatedValue = useRef(new Animated.Value(0)).current;
-    const navigation = useNavigation();
 
     const handleSubmit = () => {
-        if (username.trim() && password.trim()) {
-            login({ username: username.trim(), password: password.trim() });
+        if (!username.trim() || !password || !confirmPassword) {
+            Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+            return;
         }
-    };
 
-    const redirectRegister = () => {
-        navigation.navigate('RegisterScreen');
-    }
+        if (password !== confirmPassword) {
+            Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+            return;
+        }
+
+        register({ username: username.trim(), password });
+    };
 
     const handlePressIn = () => {
         Animated.spring(animatedValue, {
@@ -86,23 +89,26 @@ const LoginScreen = () => {
                         placeholder="••••••••"
                         value={password}
                         onChangeText={setPassword}
-                        placeholderTextColor="#666"
                         secureTextEntry
+                        placeholderTextColor="#666"
+                    />
+                </View>
+
+                <View style={styles.field}>
+                    <Text style={styles.label}>Confirmer le mot de passe</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        secureTextEntry
+                        placeholderTextColor="#666"
                     />
                 </View>
 
                 <TouchableOpacity
                     style={styles.buttonShadow}
                     onPress={handleSubmit}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                >
-                    <Text style={styles.buttonText}>Se connecter</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.buttonShadow2}
-                    onPress={redirectRegister}
                     onPressIn={handlePressIn}
                     onPressOut={handlePressOut}
                 >
@@ -165,17 +171,7 @@ const styles = StyleSheet.create({
     buttonShadow: {
         borderWidth: 3,
         borderColor: '#000',
-        backgroundColor: '#3b82f6',
-        padding: 15,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 30,
-    },
-    buttonShadow2: {
-        marginTop: 10,
-        borderWidth: 3,
-        borderColor: '#000',
-        backgroundColor: 'red',
+        backgroundColor: '#22c55e',
         padding: 15,
         justifyContent: 'center',
         alignItems: 'center',
@@ -188,4 +184,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginScreen;
+export default RegisterScreen;

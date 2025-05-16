@@ -422,18 +422,52 @@ app.get('/', (req, res) => res.sendFile('index.html'));
 
 let users = []; // stockage temporaire en mémoire
 
-app.post('/register', (req, res) => {
-  const { username } = req.body;
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-  if (!username || typeof username !== 'string' || username.trim() === '') {
-    return res.status(400).json({ error: 'Invalid username' });
+  if (
+    !username || typeof username !== 'string' || username.trim() === '' ||
+    !password || typeof password !== 'string' || password.trim() === ''
+  ) {
+    return res.status(400).json({ error: 'Invalid username or password' });
   }
 
   const cleanUsername = username.trim();
+  const cleanPassword = password.trim();
 
-  users.push(cleanUsername);
+  const user = users.find(
+    user => user.username === cleanUsername && user.password === cleanPassword
+  );
+
+  if (!user) {
+    return res.status(401).json({ error: 'Incorrect username or password' });
+  }
+
+  console.log(`User logged in: ${cleanUsername}`);
+  res.status(200).json({ message: 'Login successful' });
+});
+
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+  if (
+    !username || typeof username !== 'string' || username.trim() === '' ||
+    !password || typeof password !== 'string' || password.trim() === ''
+  ) {
+    return res.status(400).json({ error: 'Invalid username or password' });
+  }
+
+  const cleanUsername = username.trim();
+  const cleanPassword = password.trim();
+
+  const userExists = users.find(user => user.username === cleanUsername);
+  if (userExists) {
+    return res.status(409).json({ error: 'Username already exists' });
+  }
+
+  users.push({ username: cleanUsername, password: cleanPassword });
   console.log(`New user registered: ${cleanUsername}`);
-  res.status(201).json({ message: 'Username registered successfully' });
+  res.status(201).json({ message: 'User registered successfully' });
 });
 
 http.listen(3000, function () {
