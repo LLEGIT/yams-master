@@ -7,6 +7,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 var uniqid = require('uniqid');
 const GameService = require('./services/game.service');
+const fs = require('fs');
+const path = require('path');
 
 app.use(cors());
 app.use(express.json());
@@ -420,7 +422,25 @@ const findGameBySocket = (socket) => {
 
 app.get('/', (req, res) => res.sendFile('index.html'));
 
-let users = []; // stockage temporaire en mémoire
+const readUsersFromFile = () => {
+  try {
+    const data = fs.readFileSync(usersFilePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading users file:', error);
+    return [];
+  }
+};
+
+const writeUsersToFile = (users) => {
+  try {
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing to users file:', error);
+  }
+};
+
+const usersFilePath = path.join(__dirname, 'users.json');
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
@@ -434,6 +454,7 @@ app.post('/login', (req, res) => {
 
   const cleanUsername = username.trim();
   const cleanPassword = password.trim();
+  const users = readUsersFromFile();
 
   const user = users.find(
     user => user.username === cleanUsername && user.password === cleanPassword
@@ -459,6 +480,7 @@ app.post('/register', (req, res) => {
 
   const cleanUsername = username.trim();
   const cleanPassword = password.trim();
+  const users = readUsersFromFile();
 
   const userExists = users.find(user => user.username === cleanUsername);
   if (userExists) {
@@ -466,6 +488,8 @@ app.post('/register', (req, res) => {
   }
 
   users.push({ username: cleanUsername, password: cleanPassword });
+  writeUsersToFile(users);
+
   console.log(`New user registered: ${cleanUsername}`);
   res.status(201).json({ message: 'User registered successfully' });
 });
