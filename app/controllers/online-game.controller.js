@@ -106,10 +106,10 @@ export default function OnlineGameController() {
 
             {inQueue && (
                 <>
-                    <AnimatedBackground/>
+                    <AnimatedBackground />
                     <View style={styles.card}>
                         <Text style={styles.paragraph}>
-                        🕗 Waiting for another player{dots}
+                            🕗 Waiting for another player{dots}
                         </Text>
                     </View>
                     <View style={styles.card}>

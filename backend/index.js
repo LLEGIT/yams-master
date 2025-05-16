@@ -281,12 +281,12 @@ io.on('connection', socket => {
 
     // Check if player has pions left
     if ((currentPlayer === 'player:1' && game.gameState.player1Pions <= 0) ||
-        (currentPlayer === 'player:2' && game.gameState.player2Pions <= 0)) {
-        // If no pions left, determine winner based on score
-        const winner = game.gameState.player1Score > game.gameState.player2Score ? 'player:1' : 'player:2';
-        game.player1Socket.emit('game.over', { winner: winner, winType: 'noPions' });
-        game.player2Socket.emit('game.over', { winner: winner, winType: 'noPions' });
-        return;
+      (currentPlayer === 'player:2' && game.gameState.player2Pions <= 0)) {
+      // If no pions left, determine winner based on score
+      const winner = game.gameState.player1Score > game.gameState.player2Score ? 'player:1' : 'player:2';
+      game.player1Socket.emit('game.over', { winner: winner, winType: 'noPions' });
+      game.player2Socket.emit('game.over', { winner: winner, winType: 'noPions' });
+      return;
     }
 
     game.gameState.grid = GameService.grid.resetcanBeCheckedCells(game.gameState.grid);
@@ -294,9 +294,9 @@ io.on('connection', socket => {
 
     // Decrease pions count
     if (currentPlayer === 'player:1') {
-        game.gameState.player1Pions--;
+      game.gameState.player1Pions--;
     } else {
-        game.gameState.player2Pions--;
+      game.gameState.player2Pions--;
     }
 
     // Calculer et mettre à jour les scores
@@ -305,26 +305,26 @@ io.on('connection', socket => {
 
     // Check for win conditions
     if (game.gameState.winner) {
-        game.player1Socket.emit('game.over', { 
-            winner: game.gameState.winner, 
-            winType: game.gameState.winType 
-        });
-        game.player2Socket.emit('game.over', { 
-            winner: game.gameState.winner, 
-            winType: game.gameState.winType 
-        });
-        return;
+      game.player1Socket.emit('game.over', {
+        winner: game.gameState.winner,
+        winType: game.gameState.winType
+      });
+      game.player2Socket.emit('game.over', {
+        winner: game.gameState.winner,
+        winType: game.gameState.winType
+      });
+      return;
     }
 
     // Check if the other player has no pions left after this move
     const otherPlayer = currentPlayer === 'player:1' ? 'player:2' : 'player:1';
     if ((otherPlayer === 'player:1' && game.gameState.player1Pions <= 0) ||
-        (otherPlayer === 'player:2' && game.gameState.player2Pions <= 0)) {
-        // Determine winner based on score
-        const winner = game.gameState.player1Score > game.gameState.player2Score ? 'player:1' : 'player:2';
-        game.player1Socket.emit('game.over', { winner: winner, winType: 'noPions' });
-        game.player2Socket.emit('game.over', { winner: winner, winType: 'noPions' });
-        return;
+      (otherPlayer === 'player:2' && game.gameState.player2Pions <= 0)) {
+      // Determine winner based on score
+      const winner = game.gameState.player1Score > game.gameState.player2Score ? 'player:1' : 'player:2';
+      game.player1Socket.emit('game.over', { winner: winner, winType: 'noPions' });
+      game.player2Socket.emit('game.over', { winner: winner, winType: 'noPions' });
+      return;
     }
 
     game.gameState.currentTurn = currentPlayer === 'player:1' ? 'player:2' : 'player:1';
@@ -335,14 +335,14 @@ io.on('connection', socket => {
 
     // Emit updated game state to both players
     const gameStateUpdate = {
-        currentTurn: game.gameState.currentTurn,
-        player1Score: game.gameState.player1Score,
-        player2Score: game.gameState.player2Score,
-        player1Pions: game.gameState.player1Pions,
-        player2Pions: game.gameState.player2Pions,
-        grid: game.gameState.grid,
-        choices: game.gameState.choices,
-        deck: game.gameState.deck
+      currentTurn: game.gameState.currentTurn,
+      player1Score: game.gameState.player1Score,
+      player2Score: game.gameState.player2Score,
+      player1Pions: game.gameState.player1Pions,
+      player2Pions: game.gameState.player2Pions,
+      grid: game.gameState.grid,
+      choices: game.gameState.choices,
+      deck: game.gameState.deck
     };
 
     game.player1Socket.emit('game.state.update', gameStateUpdate);

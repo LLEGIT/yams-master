@@ -127,6 +127,7 @@ const GameService = {
                 return {
                     inQueue: false,
                     inGame: true,
+                    playerKey: playerKey,
                     idPlayer: playerKey === 'player:1' ? game.player1Socket.id : game.player2Socket.id,
                     idOpponent: playerKey === 'player:1' ? game.player2Socket.id : game.player1Socket.id,
                     currentTurn: game.gameState.currentTurn,
@@ -455,7 +456,7 @@ const GameService = {
                         if (!checkedAlignments.has(alignmentKey)) {
                             checkedAlignments.add(alignmentKey);
                             newPoints += 1; // 1 point pour un alignement de 3
-                            
+
                             // Vérifier si c'est un alignement de 5 (victoire instantanée)
                             if (isOwned(r, c + 3) && isOwned(r, c + 4)) {
                                 gameState.winner = currentPlayer;
@@ -471,7 +472,7 @@ const GameService = {
                         if (!checkedAlignments.has(alignmentKey)) {
                             checkedAlignments.add(alignmentKey);
                             newPoints += 1; // 1 point pour un alignement de 3
-                            
+
                             // Vérifier si c'est un alignement de 5 (victoire instantanée)
                             if (isOwned(r + 3, c) && isOwned(r + 4, c)) {
                                 gameState.winner = currentPlayer;
@@ -487,7 +488,7 @@ const GameService = {
                         if (!checkedAlignments.has(alignmentKey)) {
                             checkedAlignments.add(alignmentKey);
                             newPoints += 1; // 1 point pour un alignement de 3
-                            
+
                             // Vérifier si c'est un alignement de 5 (victoire instantanée)
                             if (isOwned(r + 3, c + 3) && isOwned(r + 4, c + 4)) {
                                 gameState.winner = currentPlayer;
@@ -503,7 +504,7 @@ const GameService = {
                         if (!checkedAlignments.has(alignmentKey)) {
                             checkedAlignments.add(alignmentKey);
                             newPoints += 1; // 1 point pour un alignement de 3
-                            
+
                             // Vérifier si c'est un alignement de 5 (victoire instantanée)
                             if (isOwned(r + 3, c - 3) && isOwned(r + 4, c - 4)) {
                                 gameState.winner = currentPlayer;
@@ -525,7 +526,7 @@ const GameService = {
 
             // Mettre à jour les scores
             gameState.scores[currentPlayer] += newPoints;
-            
+
             // Mettre à jour les scores spécifiques aux joueurs
             if (currentPlayer === 'player:1') {
                 gameState.player1Score = gameState.scores['player:1'];

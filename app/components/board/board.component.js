@@ -37,14 +37,14 @@ const PlayerScore = ({ score, pions }) => (
 
 const Board = ({ gameState, idPlayer, idOpponent }) => {
     // Déterminer si le joueur actuel est player1 ou player2
-    const isCurrentPlayer1 = idPlayer === gameState.player1Socket?.id;
-    
+    const isCurrentPlayer1 = 'player:1' === gameState.playerKey;
+
     // Calculer le tour actuel
     const isPlayer1 = gameState?.currentTurn === 'player:1';
-    
+
     // Calculer les scores et pions
     let topScore, topPions, bottomScore, bottomPions;
-    
+
     if (isCurrentPlayer1) {
         // Si le joueur actuel est player1
         topScore = gameState.player2Score;
