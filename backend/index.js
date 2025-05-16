@@ -9,6 +9,8 @@ var uniqid = require('uniqid');
 const GameService = require('./services/game.service');
 const fs = require('fs');
 const path = require('path');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 app.use(cors());
 app.use(express.json());
@@ -420,7 +422,13 @@ const findGameBySocket = (socket) => {
 // -------- SERVER METHODS -----------
 // -----------------------------------
 
-app.get('/', (req, res) => res.sendFile('index.html'));
+app.get('/', (req, res) => res.send('Hello World!'));
+
+const usersFilePath = path.join(__dirname, 'users.json');
+
+if (!fs.existsSync(usersFilePath)) {
+  fs.writeFileSync(usersFilePath, JSON.stringify([], null, 2), 'utf8');
+}
 
 const readUsersFromFile = () => {
   try {
@@ -440,58 +448,51 @@ const writeUsersToFile = (users) => {
   }
 };
 
-const usersFilePath = path.join(__dirname, 'users.json');
-
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ message: 'Nom d’utilisateur et mot de passe requis.' });
 
-  if (
-    !username || typeof username !== 'string' || username.trim() === '' ||
-    !password || typeof password !== 'string' || password.trim() === ''
-  ) {
-    return res.status(400).json({ error: 'Invalid username or password' });
+  try {
+    const users = readUsersFromFile();
+    const user = users.find(user => user.username === username);
+    if (!user)
+      return res.status(400).json({ message: 'Utilisateur non trouvé.' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).json({ message: 'Mot de passe incorrect.' });
+
+
+    return res.status(200).json({ message: 'Connexion réussie.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Erreur serveur.' });
   }
-
-  const cleanUsername = username.trim();
-  const cleanPassword = password.trim();
-  const users = readUsersFromFile();
-
-  const user = users.find(
-    user => user.username === cleanUsername && user.password === cleanPassword
-  );
-
-  if (!user) {
-    return res.status(401).json({ error: 'Incorrect username or password' });
-  }
-
-  console.log(`User logged in: ${cleanUsername}`);
-  res.status(200).json({ message: 'Login successful' });
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ message: 'Nom d’utilisateur et mot de passe requis.' });
 
-  if (
-    !username || typeof username !== 'string' || username.trim() === '' ||
-    !password || typeof password !== 'string' || password.trim() === ''
-  ) {
-    return res.status(400).json({ error: 'Invalid username or password' });
+  try {
+    const users = readUsersFromFile();
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser)
+      return res.status(400).json({ message: 'Utilisateur déjà existant.' });
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const newUser = { username, password: hashedPassword };
+
+    users.push(newUser);
+    writeUsersToFile(users);
+
+    return res.status(201).json({ message: 'Utilisateur enregistré avec succès.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Erreur serveur.' });
   }
-
-  const cleanUsername = username.trim();
-  const cleanPassword = password.trim();
-  const users = readUsersFromFile();
-
-  const userExists = users.find(user => user.username === cleanUsername);
-  if (userExists) {
-    return res.status(409).json({ error: 'Username already exists' });
-  }
-
-  users.push({ username: cleanUsername, password: cleanPassword });
-  writeUsersToFile(users);
-
-  console.log(`New user registered: ${cleanUsername}`);
-  res.status(201).json({ message: 'User registered successfully' });
 });
 
 http.listen(3000, function () {
