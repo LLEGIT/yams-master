@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
 import Board from "../components/board/board.component";
 import AnimatedBackground from "../components/animated-background/animated-background.component";
+import PillButton from "../components/button/button.component";
 
 export default function OnlineGameController({ navigation }) {
 
@@ -62,7 +63,7 @@ export default function OnlineGameController({ navigation }) {
                         🕗 Waiting for another player{dots}
                     </Text>
                     <TouchableOpacity style={styles.button} onPress={() => leave()}>
-                        <Text style={styles.buttonText}>Leave queue</Text>
+                        <PillButton title="Leave queue" />
                     </TouchableOpacity>
                 </>
             )}
@@ -91,13 +92,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     button: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 10,
-        marginVertical: 10,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#222222",
+        marginTop: 40,
+        display: 'flex',
+        alignItems: 'center'
     },
     buttonText: {
         fontSize: 18,
