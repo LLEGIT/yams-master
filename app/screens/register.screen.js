@@ -1,8 +1,9 @@
-import React, { useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text, Animated, Alert } from 'react-native';
 import { AuthContext } from '../contexts/auth.context';
+import PillButton from '../components/button/button.component';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -11,12 +12,12 @@ const RegisterScreen = () => {
 
     const handleSubmit = () => {
         if (!username.trim() || !password || !confirmPassword) {
-            Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+            Alert.alert('Error', 'Please fill all fields');
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+            Alert.alert('Error', 'Passwords doesn\'t match');
             return;
         }
 
@@ -71,8 +72,12 @@ const RegisterScreen = () => {
             <Animated.View style={[styles.inputContainer, containerStyle]}>
                 <View style={styles.shadowInput} />
 
+                <TouchableOpacity style={styles.back} onPress={() => navigation.navigate('LoginScreen')}>
+                    <Text style={styles.backLabel}>Back</Text>
+                </TouchableOpacity>
+
                 <View style={styles.field}>
-                    <Text style={styles.label}>Pseudo</Text>
+                    <Text style={styles.label}>Username</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Xx_Dark_Master_xX"
@@ -83,7 +88,7 @@ const RegisterScreen = () => {
                 </View>
 
                 <View style={styles.field}>
-                    <Text style={styles.label}>Mot de passe</Text>
+                    <Text style={styles.label}>Password</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="••••••••"
@@ -95,7 +100,7 @@ const RegisterScreen = () => {
                 </View>
 
                 <View style={styles.field}>
-                    <Text style={styles.label}>Confirmer le mot de passe</Text>
+                    <Text style={styles.label}>Confirm password</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="••••••••"
@@ -112,7 +117,7 @@ const RegisterScreen = () => {
                     onPressIn={handlePressIn}
                     onPressOut={handlePressOut}
                 >
-                    <Text style={styles.buttonText}>Créer un compte</Text>
+                    <PillButton title="Create account" />
                 </TouchableOpacity>
             </Animated.View>
         </View>
@@ -120,6 +125,16 @@ const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    back: {
+        marginBottom: 10,
+    },
+    backLabel: {
+        color: '#000',
+        fontWeight: 'bold',
+        fontSize: 20,
+        textDecorationLine: 'underline',
+        marginBottom: 5,
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -169,13 +184,11 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto',
     },
     buttonShadow: {
-        borderWidth: 3,
-        borderColor: '#000',
-        backgroundColor: '#22c55e',
-        padding: 15,
+        display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 30,
+        marginTop: 10,
+        marginBottom: 10,
     },
     buttonText: {
         fontSize: 18,

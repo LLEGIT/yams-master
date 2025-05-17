@@ -6,13 +6,10 @@ const Grid = () => {
 
     const socket = useContext(SocketContext);
 
-    const [displayGrid, setDisplayGrid] = useState(true);
-    const [canSelectCells, setCanSelectCells] = useState(false);
-    const [grid, setGrid] = useState(
-        Array(5).fill().map(() => Array(5).fill().map(() => (
-            { viewContent: '', id: '', owner: null, canBeChecked: false }
-        ))
-        ));
+    const [displayGrid, setDisplayGrid] = useState(false);
+    const [canSelectCells, setCanSelectCells] = useState([]);
+    const [grid, setGrid] = useState([]);
+    const [playerId, setPlayerId] = useState("");
 
     const handleSelectCell = (cellId, rowIndex, cellIndex) => {
         if (canSelectCells) {
@@ -22,9 +19,11 @@ const Grid = () => {
 
     useEffect(() => {
         socket.on("game.grid.view-state", (data) => {
+            console.log(data);
             setDisplayGrid(data['displayGrid']);
             setCanSelectCells(data['canSelectCells'])
             setGrid(data['grid']);
+            setPlayerId(data['playerId']);
         });
     }, []);
 
@@ -35,11 +34,11 @@ const Grid = () => {
                     <View key={rowIndex} style={styles.row}>
                         {row.map((cell, cellIndex) => (
                             <TouchableOpacity
-                                key={cellIndex}
+                                key={cell.id}
                                 style={[
                                     styles.cell,
-                                    cell.owner === "player:1" && styles.playerOwnedCell,
-                                    cell.owner === "player:2" && styles.opponentOwnedCell,
+                                    cell.owner === playerId && styles.playerOwnedCell,
+                                    cell.owner !== null && cell.owner !== playerId && styles.opponentOwnedCell,
                                     (cell.canBeChecked && !(cell.owner === "player:1") && !(cell.owner === "player:2")) && styles.canBeCheckedCell,
                                     rowIndex !== 0 && styles.topBorder,
                                     cellIndex !== 0 && styles.leftBorder,
@@ -47,7 +46,7 @@ const Grid = () => {
                                 onPress={() => handleSelectCell(cell.id, rowIndex, cellIndex)}
                                 disabled={!cell.canBeChecked}
                             >
-                                <Text style={styles.cellText}>{cell.viewContent}</Text>
+                                <Text style={[styles.cellText, cell.owner !== null && styles.ownedCellText]}>{cell.viewContent}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -62,6 +61,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
+        margin: 3,
+        backgroundColor: "black",
+        margin: 10,
+        padding: 3,
+        borderRadius: 15,
     },
     row: {
         flexDirection: "row",
@@ -69,6 +73,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
+        marginVertical: 3,
     },
     cell: {
         flexDirection: "row",
@@ -77,28 +82,27 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: "center",
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: "black",
+        borderRadius: 10,
+        marginHorizontal: 3,
+        backgroundColor: "white",
     },
     cellText: {
         fontSize: 11,
+        fontWeight: 'bold',
+    },
+    ownedCellText: {
+        color: "white",
     },
     playerOwnedCell: {
-        backgroundColor: "lightgreen",
+        backgroundColor: "#A785DF",
         opacity: 0.9,
     },
     opponentOwnedCell: {
-        backgroundColor: "lightcoral",
+        backgroundColor: "#F28383",
         opacity: 0.9,
     },
     canBeCheckedCell: {
-        backgroundColor: "lightyellow",
-    },
-    topBorder: {
-        borderTopWidth: 1,
-    },
-    leftBorder: {
-        borderLeftWidth: 1,
+        backgroundColor: "#FFD37D",
     },
 });
 

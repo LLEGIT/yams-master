@@ -1,4 +1,2 @@
-node_modules
-.env
-.expo
-backend/users.json
+/node_modules
+/server/node_modules

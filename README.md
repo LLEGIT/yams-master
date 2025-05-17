@@ -1,35 +1,61 @@
-# Socket IO Example
+# Expo & Node.js Express Yam Master game
 
-<p>
-  <!-- iOS -->
-  <a href='https://itunes.apple.com/app/apple-store/id982107779'>
-    <img alt='Supports Expo iOS' longdesc='Supports Expo iOS' src='https://img.shields.io/badge/iOS-4630EB.svg?style=flat-square&logo=APPLE&labelColor=999999&logoColor=fff' />
-  </a>
-  <!-- Android -->
-  <a href='https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=blankexample'>
-    <img alt='Supports Expo Android' longdesc='Supports Expo Android' src='https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff' />
-  </a>
-  <!-- Web -->
-  <a href='https://docs.expo.dev/workflow/web/'>
-    <img alt='Supports Expo Web' longdesc='Supports Expo Web' src='https://img.shields.io/badge/web-4630EB.svg?style=flat-square&logo=GOOGLE-CHROME&labelColor=4285F4&logoColor=fff' />
-  </a>
-</p>
+**Yam Master** is a two-player dice game where players compete to earn the most points or to align five tokens in a row on a game board.
 
-This example shows how to connect and interact with socket-io backends.
+### 🎯 Objective
 
-## 🚀 How to use
+* Score more points than your opponent **or** align **five tokens** horizontally, vertically, or diagonally to **win instantly**.
 
-### Running the app
+### 🎲 How to Play
 
-- Run `yarn` or `npm install`
-- Open `App.js` and change the `socketEndpoint` at the top of the file to point to your endpoint.
-- Open `app` with `yarn start` or `npm run start` to try it out.
+* On your turn, you can roll **5 dice** up to **3 times**.
 
-### Running the server
+* After each roll, you can set aside any dice and re-roll the rest.
 
-- `cd` into the `backend` directory and run `yarn` or `npm install`, then run `yarn start` or `npm run start`
-- Install [ngrok](https://ngrok.com/download) and run `ngrok http 3000` and copy the https url that looks something like this `https://f7333e87.ngrok.io`.
+* The goal is to achieve one of several **combinations**:
 
-## 📝 Notes
+  * **Three-of-a-kind (Brelan)**
+  * **Four-of-a-kind (Carré)**
+  * **Full house (Full): 3 of one + 2 of another**
+  * **Yam: Five of a kind**
+  * **Straight (Suite): 1-2-3-4-5 or 2-3-4-5-6**
+  * **≤8**: Total sum of dice is 8 or less
+  * **Sec**: Any of the above (except Brelan) on the first roll
+  * **Défi (Challenge)**: Declare a challenge before the second roll and succeed with any combo (except Brelan) in the next two rolls
 
-React Native provides a socket-io compatible WebSocket implementation, some people get tripped up on the https requirement so this example helps to clarify how you can get it running.
+* When you succeed with a combo, you may place a token on the corresponding board space.
+
+### 🐍 Yam Predator
+
+* If you roll a **Yam**, you can **remove an opponent's token** instead of placing your own.
+
+### 🏆 Scoring
+
+* 3 tokens aligned = 1 point
+* 4 tokens aligned = 2 points
+* **Game ends** when:
+
+  * A player **places all tokens**, or
+  * A player **makes an alignment of 5** (instant win)
+
+---
+
+It's a strategic and fast-paced dice game blending **chance**, **choice**, and **tactical placement**.
+
+
+## Frontend setup
+
+``` bash
+npm install
+npx expo install @expo/metro-runtime
+npx expo start
+```
+
+## Backend setup (websocket)
+
+``` bash
+cd server
+npm install
+npm run start
+```
+

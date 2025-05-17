@@ -1,14 +1,22 @@
-
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet, View, Button, Text } from "react-native";
 import { SocketContext } from '../contexts/socket.context';
+import Board from "../components/board/board.component";
 
 export default function VsBotGameScreen({ navigation }) {
-
+    
     const socket = useContext(SocketContext);
 
+    useEffect(() => {
+
+        socket.emit("vsBotGame.start");
+
+    }, []);
+
     return (
+
         <View style={styles.container}>
+
             {!socket && (
                 <>
                     <Text style={styles.paragraph}>
@@ -22,18 +30,10 @@ export default function VsBotGameScreen({ navigation }) {
 
             {socket && (
                 <>
-                    <Text style={styles.paragraph}>
-                        VsBot Game Interface
-                    </Text>
-                    <Text style={styles.footnote}>
-                        My socket id is: {socket.id}
-                    </Text>
-                    <Button
-                        title="Back to menu"
-                        onPress={() => navigation.navigate('HomeScreen')}
-                    />
+                    <Board navigation={navigation} />
                 </>
             )}
+
         </View>
     );
 }

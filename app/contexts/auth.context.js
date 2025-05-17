@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                alert('Erreur lors de l’inscription. Réessayez plus tard.');
+                alert('Error while registering, try again later.');
                 return false;
             }
 
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
             return true;
         } catch (error) {
             console.error('Register error:', error);
-            alert('Une erreur est survenue pendant l’inscription.');
+            alert('Error while registering, try again later.');
             return false;
         }
     };
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                alert('Identifiants incorrects ou erreur de connexion.');
+                alert('Incorrect credentials or technical error occured.');
                 return;
             }
 
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
             setUsername(username);
         } catch (error) {
             console.error('Login error:', error);
-            alert('Une erreur est survenue. Veuillez réessayer.');
+            alert('Technical error occured, please try again later.');
         }
     };
 

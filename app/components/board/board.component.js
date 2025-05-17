@@ -1,133 +1,93 @@
-// app/components/board/board.component.js
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useContext } from "react";
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import PlayerDeck from "./decks/player-deck.component";
-import PlayerTimer from "./timers/player-timer-component";
 import OpponentDeck from "./decks/opponent-deck.component";
-import OpponentTimer from "./timers/opponent-timer-component";
+import Timer from "./timers/timer.component";
 import Choices from "./choices/choices.component";
 import Grid from "./grid/grid.component";
+import PlayerInfo from "./player-info/player-info.component";
+import OpponentInfo from "./player-info/opponent-info.component";
+import EndGame from "../online-game/end-game.component";
+import { SocketContext } from '../../contexts/socket.context';
 
-const OpponentScore = ({ score, pions }) => (
-    <View style={styles.opponentScoreContainer}>
-        <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>🪙 {pions}</Text>
-    </View>
-);
+const Board = ({ navigation }) => {
 
-const PlayerScore = ({ score, pions }) => (
-    <View style={styles.playerScoreContainer}>
-        <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>🪙 {pions}</Text>
-    </View>
-);
+  const socket = useContext(SocketContext);
+  const [isMyTurn, setIsMyTurn] = useState(false);
 
-const Board = ({ gameState, idPlayer, idOpponent }) => {
-    // Déterminer si le joueur actuel est player1 ou player2
-    const isCurrentPlayer1 = 'player:1' === gameState.playerKey;
+  socket.on("game.current-turn", (data) => {
+    setIsMyTurn(data["isMyTurn"]);
+  });
 
-    // Calculer le tour actuel
-    const isPlayer1 = gameState?.currentTurn === 'player:1';
+  socket.on("game.player-disconnection", () => {
+    navigation.navigate('HomeScreen');
+  });
 
-    // Calculer les scores et pions
-    let topScore, topPions, bottomScore, bottomPions;
+  return (
 
-    if (isCurrentPlayer1) {
-        // Si le joueur actuel est player1
-        topScore = gameState.player2Score;
-        topPions = gameState.player2Pions;
-        bottomScore = gameState.player1Score;
-        bottomPions = gameState.player1Pions;
-    } else {
-        // Si le joueur actuel est player2
-        topScore = gameState.player1Score;
-        topPions = gameState.player1Pions;
-        bottomScore = gameState.player2Score;
-        bottomPions = gameState.player2Pions;
-    }
+    <View style={[styles.container, Platform.OS == "web" && styles.containerWeb]}>
 
-    const playerDeck = isPlayer1 ? gameState.player1Deck : gameState.player2Deck;
-    const opponentDeck = isPlayer1 ? gameState.player2Deck : gameState.player1Deck;
+      <View style={{ height: '7%' }} />
 
-    return (
-        <View style={styles.container}>
-            <View style={[styles.row, { height: '5%' }]}>
-                <Text>Opponent</Text>
-                <View style={styles.opponentTimerScoreContainer}>
-                    <OpponentTimer time={isPlayer1 ? 0 : gameState.timer} />
-                    <OpponentScore score={topScore} pions={topPions} />
-                </View>
-            </View>
-            <View style={[styles.row, { height: '25%' }]}>
-                <OpponentDeck deck={opponentDeck} />
-            </View>
-            <View style={[styles.row, { height: '40%' }]}>
-                <Grid />
-                <Choices />
-            </View>
-            <View style={[styles.row, { height: '25%' }]}>
-                <PlayerDeck deck={playerDeck} />
-            </View>
-            <View style={[styles.row, { height: '5%', borderColor: 'black', borderTopWidth: 1 }]}>
-                <Text>Your board</Text>
-                <View style={styles.playerTimerScoreContainer}>
-                    <PlayerTimer time={isPlayer1 ? gameState.timer : 0} />
-                    <PlayerScore score={bottomScore} pions={bottomPions} />
-                </View>
-            </View>
+      <View style={styles.playersInfoContainer}>
+        <PlayerInfo />
+        <Timer />
+        <OpponentInfo />
+      </View>
+
+      { !isMyTurn && 
+        <>
+        <View style={styles.row}>
+          <OpponentDeck />
         </View>
-    );
+      
+        <View style={[styles.row]}>
+          <Choices />
+        </View>
+        </>
+      }
+
+      <View style={[styles.row, { height: '45%' }]}>
+        <Grid />
+      </View>
+
+      { isMyTurn && 
+        <View style={[styles.row]}>
+          <Choices />
+        </View>
+      }
+      <View style={[styles.row, { height: '25%' }]}>
+        <PlayerDeck />
+      </View>
+
+      <EndGame navigation={navigation} />
+    </View>
+  );
 };
 
-export default Board;
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'column',
-        backgroundColor: '#fff',
-    },
-    row: {
-        width: '100%',
-    },
-    opponentInfosContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingLeft: 10,
-    },
-    opponentTimerScoreContainer: {
-        flex: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        paddingTop: 10,
-        borderTopWidth: 1,
-        borderColor: 'black'
-    },
-    opponentScoreContainer: {
-        alignItems: 'flex-end',
-    },
-    playerInfosContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingLeft: 10,
-    },
-    playerTimerScoreContainer: {
-        flex: 2,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 10,
-    },
-    playerScoreContainer: {
-        alignItems: 'flex-end',
-    },
-    scoreText: {
-        fontWeight: 'bold',
-        fontSize: 14,
-    },
-    pionsText: {
-        fontSize: 12,
-        color: '#555',
-    },
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  containerWeb: {
+    width: '50%',
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  playersInfoContainer: {
+    width: "100%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
 });
+
+export default Board;
