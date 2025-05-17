@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
     },
     diceContainer: {
         flexDirection: "row",
-        width: "70%",
-        justifyContent: "space-between",
+        alignItems: 'center',
+        gap: 5,
         marginBottom: 10,
     },
 });

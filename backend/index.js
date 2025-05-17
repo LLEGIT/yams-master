@@ -51,6 +51,13 @@ const updateClientsViewGrid = (game) => {
   }, 200);
 }
 
+const updateClientsViewScore = (game) => {
+  setTimeout(() => {
+    game.player1Socket.emit('game.score.view-state', GameService.send.forPlayer.scoreViewState('player:1', game.gameState));
+    game.player2Socket.emit('game.score.view-state', GameService.send.forPlayer.scoreViewState('player:2', game.gameState));
+  }, 200);
+}
+
 // ---------------------------------
 // -------- GAME METHODS -----------
 // ---------------------------------
@@ -271,7 +278,8 @@ io.on('connection', socket => {
     );
 
     // Update player score in 3 cell row or win game
-
+    const updatedGameState = GameService.score.calculateScore(game.gameState);
+    game.gameState = updatedGameState;
 
     // Notify both players of updated choice and updated grid
     updateClientsViewChoices(game);

@@ -91,8 +91,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        borderBottomWidth: 1,
-        borderColor: "black"
     },
     rollInfoContainer: {
         marginBottom: 10,
@@ -103,8 +101,8 @@ const styles = StyleSheet.create({
     },
     diceContainer: {
         flexDirection: "row",
-        width: "70%",
-        justifyContent: "space-between",
+        gap: 5,
+        alignItems: 'center',
         marginBottom: 10,
     },
     rollButton: {

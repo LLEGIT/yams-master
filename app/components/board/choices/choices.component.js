@@ -39,50 +39,42 @@ const Choices = () => {
                     <TouchableOpacity
                         key={choice.id}
                         style={[
-                            styles.choiceButton,
+                            styles.choice,
                             idSelectedChoice === choice.id && styles.selectedChoice,
                             !canMakeChoice && styles.disabledChoice
                         ]}
                         onPress={() => handleSelectChoice(choice.id)}
                         disabled={!canMakeChoice}
                     >
-                        <Text style={styles.choiceText}>{choice.value}</Text>
+                        <Text>{choice.value}</Text>
                     </TouchableOpacity>
-                )) || <Text>No choices available</Text>}
+                ))}
         </View>
     );
 };
 
+export default Choices;
+
 const styles = StyleSheet.create({
     choicesContainer: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        paddingHorizontal: 10,
-        borderBottomWidth: 1,
-        borderColor: "black",
-        backgroundColor: "lightgrey"
+        marginTop: 5,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 5,
     },
-    choiceButton: {
-        backgroundColor: "white",
-        borderRadius: 5,
-        marginVertical: 5,
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        height: "10%"
+    choice: {
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        borderColor: 'black',
+        borderWidth: 1,
+        backgroundColor: 'white',
     },
     selectedChoice: {
-        backgroundColor: "lightgreen",
-    },
-    choiceText: {
-        fontSize: 13,
-        fontWeight: "bold",
+        backgroundColor: 'lightgreen',
+        borderColor: 'green',
     },
     disabledChoice: {
         opacity: 0.5,
     },
 });
-
-export default Choices;

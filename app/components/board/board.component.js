@@ -1,6 +1,4 @@
 // app/components/board/board.component.js
-
-import React from "react";
 import { View, Text, StyleSheet } from 'react-native';
 import PlayerDeck from "./decks/player-deck.component";
 import PlayerTimer from "./timers/player-timer-component";
@@ -9,29 +7,17 @@ import OpponentTimer from "./timers/opponent-timer-component";
 import Choices from "./choices/choices.component";
 import Grid from "./grid/grid.component";
 
-const OpponentInfos = ({ idOpponent }) => (
-    <View style={styles.opponentInfosContainer}>
-        <Text>Opponent ID: {idOpponent || "N/A"}</Text>
-    </View>
-);
-
 const OpponentScore = ({ score, pions }) => (
     <View style={styles.opponentScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
-    </View>
-);
-
-const PlayerInfos = ({ idPlayer }) => (
-    <View style={styles.playerInfosContainer}>
-        <Text>Player ID: {idPlayer || "N/A"}</Text>
+        <Text style={styles.pionsText}>🪙 {pions}</Text>
     </View>
 );
 
 const PlayerScore = ({ score, pions }) => (
     <View style={styles.playerScoreContainer}>
         <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.pionsText}>Pions restants: {pions}</Text>
+        <Text style={styles.pionsText}>🪙 {pions}</Text>
     </View>
 );
 
@@ -65,7 +51,7 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
     return (
         <View style={styles.container}>
             <View style={[styles.row, { height: '5%' }]}>
-                <OpponentInfos idOpponent={idOpponent} />
+                <Text>Opponent</Text>
                 <View style={styles.opponentTimerScoreContainer}>
                     <OpponentTimer time={isPlayer1 ? 0 : gameState.timer} />
                     <OpponentScore score={topScore} pions={topPions} />
@@ -76,15 +62,13 @@ const Board = ({ gameState, idPlayer, idOpponent }) => {
             </View>
             <View style={[styles.row, { height: '40%' }]}>
                 <Grid />
-                <View style={styles.choicesContainer}>
-                    <Choices />
-                </View>
+                <Choices />
             </View>
             <View style={[styles.row, { height: '25%' }]}>
                 <PlayerDeck deck={playerDeck} />
             </View>
-            <View style={[styles.row, { height: '5%' }]}>
-                <PlayerInfos idPlayer={idPlayer} />
+            <View style={[styles.row, { height: '5%', borderColor: 'black', borderTopWidth: 1 }]}>
+                <Text>Your board</Text>
                 <View style={styles.playerTimerScoreContainer}>
                     <PlayerTimer time={isPlayer1 ? gameState.timer : 0} />
                     <PlayerScore score={bottomScore} pions={bottomPions} />
@@ -100,82 +84,50 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
         backgroundColor: '#fff',
     },
     row: {
-        flexDirection: 'row',
         width: '100%',
-        borderBottomWidth: 1,
-        borderColor: 'black',
     },
     opponentInfosContainer: {
-        flex: 7,
+        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        borderRightWidth: 1,
-        borderColor: 'black',
-        backgroundColor: "lightgrey"
+        paddingLeft: 10,
     },
     opponentTimerScoreContainer: {
-        flex: 3,
-        flexDirection: 'column',
-        justifyContent: 'center',
+        flex: 2,
+        flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: "lightgrey"
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderColor: 'black'
     },
     opponentScoreContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 5,
-        backgroundColor: "lightgrey"
-    },
-    gridContainer: {
-        flex: 7,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRightWidth: 1,
-        borderColor: 'black',
-    },
-    choicesContainer: {
-        flex: 3,
-        justifyContent: 'center',
-        alignItems: 'center',
+        alignItems: 'flex-end',
     },
     playerInfosContainer: {
-        flex: 7,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRightWidth: 1,
-        borderColor: 'black',
-        backgroundColor: "lightgrey"
-    },
-    playerTimerScoreContainer: {
-        flex: 3,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: "lightgrey"
-    },
-    playerScoreContainer: {
         flex: 1,
         justifyContent: 'center',
+        paddingLeft: 10,
+    },
+    playerTimerScoreContainer: {
+        flex: 2,
+        flexDirection: 'row',
         alignItems: 'center',
-        padding: 5,
-        backgroundColor: "lightgrey"
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,
+    },
+    playerScoreContainer: {
+        alignItems: 'flex-end',
     },
     scoreText: {
-        fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 5,
+        fontSize: 14,
     },
     pionsText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#2196F3',
+        fontSize: 12,
+        color: '#555',
     },
 });

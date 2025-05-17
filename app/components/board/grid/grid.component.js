@@ -22,7 +22,6 @@ const Grid = () => {
 
     useEffect(() => {
         socket.on("game.grid.view-state", (data) => {
-            console.log('')
             setDisplayGrid(data['displayGrid']);
             setCanSelectCells(data['canSelectCells'])
             setGrid(data['grid']);
@@ -48,7 +47,6 @@ const Grid = () => {
                                 onPress={() => handleSelectCell(cell.id, rowIndex, cellIndex)}
                                 disabled={!cell.canBeChecked}
                             >
-                                {console.log(cell.canBeChecked)}
                                 <Text style={styles.cellText}>{cell.viewContent}</Text>
                             </TouchableOpacity>
                         ))}
