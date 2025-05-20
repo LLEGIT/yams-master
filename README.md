@@ -42,6 +42,8 @@
 
 It's a strategic and fast-paced dice game blending **chance**, **choice**, and **tactical placement**.
 
+## Stack architecture
+![image](https://github.com/user-attachments/assets/ec77fce0-079e-4118-89ed-cc5b80c9fa8c)
 
 ## Frontend setup
 
